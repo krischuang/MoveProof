@@ -43,4 +43,58 @@ struct AppEnvironment {
             snapshotPublisher: WidgetSnapshotPublisher()
         )
     }
+
+    // MARK: - Use cases
+    //
+    // Assembled here rather than inside view models, so a view model receives a
+    // ready use case and never decides which repository implementation to use.
+
+    var startTenancyInspection: StartTenancyInspectionUseCase {
+        StartTenancyInspectionUseCase(
+            tenancyRepository: tenancyRepository,
+            inspectionRepository: inspectionRepository
+        )
+    }
+
+    var recordConditionEvidence: RecordConditionEvidenceUseCase {
+        RecordConditionEvidenceUseCase(
+            inspectionRepository: inspectionRepository,
+            evidenceRepository: evidenceRepository
+        )
+    }
+
+    var completeInspectionArea: CompleteInspectionAreaUseCase {
+        CompleteInspectionAreaUseCase(
+            inspectionRepository: inspectionRepository,
+            evidenceRepository: evidenceRepository
+        )
+    }
+
+    var importSharedEvidence: ImportSharedEvidenceUseCase {
+        ImportSharedEvidenceUseCase(
+            tenancyRepository: tenancyRepository,
+            evidenceRepository: evidenceRepository,
+            evidenceFileStore: evidenceFileStore,
+            inbox: sharedEvidenceInbox
+        )
+    }
+
+    var captureEvidence: CaptureEvidenceUseCase {
+        CaptureEvidenceUseCase(
+            tenancyRepository: tenancyRepository,
+            inspectionRepository: inspectionRepository,
+            evidenceRepository: evidenceRepository,
+            evidenceFileStore: evidenceFileStore
+        )
+    }
+
+    var reviewInspectionProgress: ReviewInspectionProgressUseCase {
+        ReviewInspectionProgressUseCase(
+            tenancyRepository: tenancyRepository,
+            inspectionRepository: inspectionRepository,
+            evidenceRepository: evidenceRepository,
+            inbox: sharedEvidenceInbox,
+            snapshotPublisher: snapshotPublisher
+        )
+    }
 }
