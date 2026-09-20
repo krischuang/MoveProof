@@ -1,9 +1,44 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1" systemVersion="11A491" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="false" userDefinedModelVersionIdentifier="">
-    <entity name="Item" representedClassName="Item" syncable="YES" codeGenerationType="class">
-        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+    <entity name="ConditionItemEntity" representedClassName="ConditionItemEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="categoryRaw" attributeType="String" defaultValueString="structure"/>
+        <attribute name="conditionStateRaw" attributeType="String" defaultValueString="notReviewed"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isRequired" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="notes" attributeType="String" defaultValueString=""/>
+        <attribute name="reviewedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="title" attributeType="String" defaultValueString=""/>
+        <relationship name="evidence" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="EvidenceItemEntity" inverseName="conditionItem" inverseEntity="EvidenceItemEntity"/>
+        <relationship name="inspectionArea" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="InspectionAreaEntity" inverseName="conditionItems" inverseEntity="InspectionAreaEntity"/>
     </entity>
-    <elements>
-        <element name="Item" positionX="-63" positionY="-18" width="128" height="44"/>
-    </elements>
+    <entity name="EvidenceItemEntity" representedClassName="EvidenceItemEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="capturedAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="displayName" attributeType="String" defaultValueString=""/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="importedInboxItemID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="kindRaw" attributeType="String" defaultValueString="photograph"/>
+        <attribute name="notes" attributeType="String" defaultValueString=""/>
+        <attribute name="sourceRaw" attributeType="String" defaultValueString="capturedInApp"/>
+        <attribute name="storedFileName" attributeType="String" defaultValueString=""/>
+        <relationship name="conditionItem" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ConditionItemEntity" inverseName="evidence" inverseEntity="ConditionItemEntity"/>
+        <relationship name="tenancy" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TenancyEntity" inverseName="evidence" inverseEntity="TenancyEntity"/>
+    </entity>
+    <entity name="InspectionAreaEntity" representedClassName="InspectionAreaEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="displayOrder" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="inspectionStatusRaw" attributeType="String" defaultValueString="notStarted"/>
+        <attribute name="name" attributeType="String" defaultValueString=""/>
+        <relationship name="conditionItems" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ConditionItemEntity" inverseName="inspectionArea" inverseEntity="ConditionItemEntity"/>
+        <relationship name="tenancy" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TenancyEntity" inverseName="areas" inverseEntity="TenancyEntity"/>
+    </entity>
+    <entity name="TenancyEntity" representedClassName="TenancyEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="conditionReportDueDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="moveInDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="propertyAddress" attributeType="String" defaultValueString=""/>
+        <attribute name="statusRaw" attributeType="String" defaultValueString="documenting"/>
+        <relationship name="areas" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="InspectionAreaEntity" inverseName="tenancy" inverseEntity="InspectionAreaEntity"/>
+        <relationship name="evidence" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="EvidenceItemEntity" inverseName="tenancy" inverseEntity="EvidenceItemEntity"/>
+    </entity>
 </model>
