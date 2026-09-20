@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4469A7ADDDEE999151C52531 /* SharedEvidenceInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BB6B7AC129F515846D92CF /* SharedEvidenceInbox.swift */; };
+		94AF30EF0D0CB0AAA29A7E03 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21441D0672F6159B4E3794E /* AppGroup.swift */; };
+		EE4A087FA034279136D5E927 /* InspectionSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4B5A67F0AD1C1960E67835 /* InspectionSnapshot.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		2AF9892C305CD64E0065A469 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,24 +30,33 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1F4B5A67F0AD1C1960E67835 /* InspectionSnapshot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InspectionSnapshot.swift; sourceTree = "<group>"; };
 		2AF98919305CD64A0065A469 /* MoveProof.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoveProof.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AF9892B305CD64E0065A469 /* MoveProofTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MoveProofTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AF98935305CD64E0065A469 /* MoveProofUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MoveProofUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		36BB6B7AC129F515846D92CF /* SharedEvidenceInbox.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedEvidenceInbox.swift; sourceTree = "<group>"; };
+		D21441D0672F6159B4E3794E /* AppGroup.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppGroup.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2AF9891B305CD64A0065A469 /* MoveProof */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = MoveProof;
 			sourceTree = "<group>";
 		};
 		2AF9892E305CD64E0065A469 /* MoveProofTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = MoveProofTests;
 			sourceTree = "<group>";
 		};
 		2AF98938305CD64E0065A469 /* MoveProofUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = MoveProofUITests;
 			sourceTree = "<group>";
 		};
@@ -79,6 +94,7 @@
 				2AF9892E305CD64E0065A469 /* MoveProofTests */,
 				2AF98938305CD64E0065A469 /* MoveProofUITests */,
 				2AF9891A305CD64A0065A469 /* Products */,
+				8C079BD13B8B00566C398F9E /* MoveProofShared */,
 			);
 			sourceTree = "<group>";
 		};
@@ -90,6 +106,17 @@
 				2AF98935305CD64E0065A469 /* MoveProofUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8C079BD13B8B00566C398F9E /* MoveProofShared */ = {
+			isa = PBXGroup;
+			children = (
+				D21441D0672F6159B4E3794E /* AppGroup.swift */,
+				1F4B5A67F0AD1C1960E67835 /* InspectionSnapshot.swift */,
+				36BB6B7AC129F515846D92CF /* SharedEvidenceInbox.swift */,
+			);
+			name = MoveProofShared;
+			path = MoveProofShared;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -111,8 +138,6 @@
 				2AF9891B305CD64A0065A469 /* MoveProof */,
 			);
 			name = MoveProof;
-			packageProductDependencies = (
-			);
 			productName = MoveProof;
 			productReference = 2AF98919305CD64A0065A469 /* MoveProof.app */;
 			productType = "com.apple.product-type.application";
@@ -134,8 +159,6 @@
 				2AF9892E305CD64E0065A469 /* MoveProofTests */,
 			);
 			name = MoveProofTests;
-			packageProductDependencies = (
-			);
 			productName = MoveProofTests;
 			productReference = 2AF9892B305CD64E0065A469 /* MoveProofTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -157,8 +180,6 @@
 				2AF98938305CD64E0065A469 /* MoveProofUITests */,
 			);
 			name = MoveProofUITests;
-			packageProductDependencies = (
-			);
 			productName = MoveProofUITests;
 			productReference = 2AF98935305CD64E0065A469 /* MoveProofUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -236,6 +257,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				94AF30EF0D0CB0AAA29A7E03 /* AppGroup.swift in Sources */,
+				EE4A087FA034279136D5E927 /* InspectionSnapshot.swift in Sources */,
+				4469A7ADDDEE999151C52531 /* SharedEvidenceInbox.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
