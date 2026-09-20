@@ -40,4 +40,31 @@ struct InspectionStore {
     var viewContext: NSManagedObjectContext {
         container.viewContext
     }
+
+    /// Empties the store so a UI test starts from a known first-run state.
+    ///
+    /// Only runs when the UI test harness passes `-MoveProofResetStoreForUITesting`,
+    /// so there is no path from normal use into deleting a tenant's evidence.
+    static func resetIfRequestedByUITest(store: InspectionStore) {
+        guard ProcessInfo.processInfo.arguments.contains("-MoveProofResetStoreForUITesting") else {
+            return
+        }
+
+        let context = store.viewContext
+        // Tenancy cascades to rooms, checklist items and evidence metadata.
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "TenancyEntity")
+        if let tenancies = try? context.fetch(request) as? [NSManagedObject] {
+            tenancies.forEach(context.delete)
+            try? context.save()
+        }
+
+        // Clear the App Group directories too, so a previous run's files and
+        // widget snapshot cannot leak into the next test.
+        for directory in [AppGroup.Directory.evidence, .sharedEvidenceInbox, .widget] {
+            guard let url = try? AppGroup.directoryURL(directory),
+                  let contents = try? FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)
+            else { continue }
+            contents.forEach { try? FileManager.default.removeItem(at: $0) }
+        }
+    }
 }
