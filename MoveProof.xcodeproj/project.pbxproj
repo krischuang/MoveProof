@@ -8,8 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		4469A7ADDDEE999151C52531 /* SharedEvidenceInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BB6B7AC129F515846D92CF /* SharedEvidenceInbox.swift */; };
+		4F3F682CFC67E4A81CD1F5FE /* ShareConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 994231F73B1A4FA793C69187 /* ShareConfirmationView.swift */; };
+		67E7763A1CEB79080262EACA /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DAFB1DD814DC657D01374F8 /* ShareViewController.swift */; };
+		9164634CD2204849CD0C231D /* SharedEvidenceInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BB6B7AC129F515846D92CF /* SharedEvidenceInbox.swift */; };
 		94AF30EF0D0CB0AAA29A7E03 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21441D0672F6159B4E3794E /* AppGroup.swift */; };
+		EB4CB00B12138C18E855EC7A /* MoveProofShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5EC38DC031AC034973C5DD21 /* MoveProofShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EE4A087FA034279136D5E927 /* InspectionSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4B5A67F0AD1C1960E67835 /* InspectionSnapshot.swift */; };
+		F06A4599487307ECC82D7119 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1893397EB786CB0B491641E0 /* Foundation.framework */; };
+		F49BBB635470FC20EF20C9A6 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21441D0672F6159B4E3794E /* AppGroup.swift */; };
+		F73DFEF217DF2FBDA39B9EBA /* SharedItemCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04DA35313CE150B6F9D175A1 /* SharedItemCollector.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,15 +34,43 @@
 			remoteGlobalIDString = 2AF98918305CD64A0065A469;
 			remoteInfo = MoveProof;
 		};
+		4F49A906F1928F56EF4DA04B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2AF98911305CD64A0065A469 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7ED7BACB447C14F6552E238C;
+			remoteInfo = MoveProofShareExtension;
+		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		A4496C072E141B881BB40184 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				EB4CB00B12138C18E855EC7A /* MoveProofShareExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		04DA35313CE150B6F9D175A1 /* SharedItemCollector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedItemCollector.swift; sourceTree = "<group>"; };
+		1893397EB786CB0B491641E0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		1F4B5A67F0AD1C1960E67835 /* InspectionSnapshot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InspectionSnapshot.swift; sourceTree = "<group>"; };
 		2AF98919305CD64A0065A469 /* MoveProof.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoveProof.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AF9892B305CD64E0065A469 /* MoveProofTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MoveProofTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AF98935305CD64E0065A469 /* MoveProofUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MoveProofUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		36BB6B7AC129F515846D92CF /* SharedEvidenceInbox.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedEvidenceInbox.swift; sourceTree = "<group>"; };
+		4DAFB1DD814DC657D01374F8 /* ShareViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		5573B0F4B994B971B8E883E9 /* MoveProofShareExtension.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = MoveProofShareExtension.entitlements; sourceTree = "<group>"; };
+		5EC38DC031AC034973C5DD21 /* MoveProofShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MoveProofShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		994231F73B1A4FA793C69187 /* ShareConfirmationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareConfirmationView.swift; sourceTree = "<group>"; };
 		D21441D0672F6159B4E3794E /* AppGroup.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppGroup.swift; sourceTree = "<group>"; };
+		F7DED35E17D86F7FF15B6887 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -84,9 +119,30 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		668BBCAA11A4D6BAEE50A305 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F06A4599487307ECC82D7119 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1BA38BFEE3CDC1571337A2A8 /* MoveProofShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				04DA35313CE150B6F9D175A1 /* SharedItemCollector.swift */,
+				994231F73B1A4FA793C69187 /* ShareConfirmationView.swift */,
+				4DAFB1DD814DC657D01374F8 /* ShareViewController.swift */,
+				F7DED35E17D86F7FF15B6887 /* Info.plist */,
+				5573B0F4B994B971B8E883E9 /* MoveProofShareExtension.entitlements */,
+			);
+			name = MoveProofShareExtension;
+			path = MoveProofShareExtension;
+			sourceTree = "<group>";
+		};
 		2AF98910305CD64A0065A469 = {
 			isa = PBXGroup;
 			children = (
@@ -95,6 +151,8 @@
 				2AF98938305CD64E0065A469 /* MoveProofUITests */,
 				2AF9891A305CD64A0065A469 /* Products */,
 				8C079BD13B8B00566C398F9E /* MoveProofShared */,
+				50DE712BE0D39AB4175086AA /* Frameworks */,
+				1BA38BFEE3CDC1571337A2A8 /* MoveProofShareExtension */,
 			);
 			sourceTree = "<group>";
 		};
@@ -104,8 +162,25 @@
 				2AF98919305CD64A0065A469 /* MoveProof.app */,
 				2AF9892B305CD64E0065A469 /* MoveProofTests.xctest */,
 				2AF98935305CD64E0065A469 /* MoveProofUITests.xctest */,
+				5EC38DC031AC034973C5DD21 /* MoveProofShareExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		50DE712BE0D39AB4175086AA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8A47A14F0DB9E83B8A678745 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		8A47A14F0DB9E83B8A678745 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				1893397EB786CB0B491641E0 /* Foundation.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 		8C079BD13B8B00566C398F9E /* MoveProofShared */ = {
@@ -129,10 +204,12 @@
 				2AF98915305CD64A0065A469 /* Sources */,
 				2AF98916305CD64A0065A469 /* Frameworks */,
 				2AF98917305CD64A0065A469 /* Resources */,
+				A4496C072E141B881BB40184 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				9895D8E9DF2B2F9FEA0132A9 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				2AF9891B305CD64A0065A469 /* MoveProof */,
@@ -184,6 +261,23 @@
 			productReference = 2AF98935305CD64E0065A469 /* MoveProofUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		7ED7BACB447C14F6552E238C /* MoveProofShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A99BF9FD17B9AC24AF389EAC /* Build configuration list for PBXNativeTarget "MoveProofShareExtension" */;
+			buildPhases = (
+				8F3F23CA69E97A66EA352753 /* Sources */,
+				668BBCAA11A4D6BAEE50A305 /* Frameworks */,
+				EF9827ABB2DFDA43A701B391 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MoveProofShareExtension;
+			productName = MoveProofShareExtension;
+			productReference = 5EC38DC031AC034973C5DD21 /* MoveProofShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -224,6 +318,7 @@
 				2AF98918305CD64A0065A469 /* MoveProof */,
 				2AF9892A305CD64E0065A469 /* MoveProofTests */,
 				2AF98934305CD64E0065A469 /* MoveProofUITests */,
+				7ED7BACB447C14F6552E238C /* MoveProofShareExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -244,6 +339,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		2AF98933305CD64E0065A469 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EF9827ABB2DFDA43A701B391 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -277,6 +379,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8F3F23CA69E97A66EA352753 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F73DFEF217DF2FBDA39B9EBA /* SharedItemCollector.swift in Sources */,
+				4F3F682CFC67E4A81CD1F5FE /* ShareConfirmationView.swift in Sources */,
+				67E7763A1CEB79080262EACA /* ShareViewController.swift in Sources */,
+				F49BBB635470FC20EF20C9A6 /* AppGroup.swift in Sources */,
+				9164634CD2204849CD0C231D /* SharedEvidenceInbox.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -289,6 +403,12 @@
 			isa = PBXTargetDependency;
 			target = 2AF98918305CD64A0065A469 /* MoveProof */;
 			targetProxy = 2AF98936305CD64E0065A469 /* PBXContainerItemProxy */;
+		};
+		9895D8E9DF2B2F9FEA0132A9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MoveProofShareExtension;
+			target = 7ED7BACB447C14F6552E238C /* MoveProofShareExtension */;
+			targetProxy = 4F49A906F1928F56EF4DA04B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -556,6 +676,65 @@
 			};
 			name = Release;
 		};
+		6C3573E54240B4356E5D30D5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = MoveProofShareExtension/MoveProofShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MoveProofShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MoveProof;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.krischuang.MoveProof.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		776A3CE234836E6E76799C40 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = MoveProofShareExtension/MoveProofShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MoveProofShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MoveProof;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.krischuang.MoveProof.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -591,6 +770,15 @@
 			buildConfigurations = (
 				2AF98946305CD64E0065A469 /* Debug */,
 				2AF98947305CD64E0065A469 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A99BF9FD17B9AC24AF389EAC /* Build configuration list for PBXNativeTarget "MoveProofShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6C3573E54240B4356E5D30D5 /* Release */,
+				776A3CE234836E6E76799C40 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
