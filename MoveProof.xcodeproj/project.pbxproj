@@ -7,16 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		11E6CF0B58F82CD0BF50AF87 /* InspectionProgressProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4874753EC849282493B67E9F /* InspectionProgressProvider.swift */; };
+		1F48933F84C79ABC75FD837F /* MoveProofWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 98DFD9510FAB928CAD0F7EBE /* MoveProofWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		311695A41A3B831167979DA9 /* MoveProofWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0FAAE9D95654F7152C45204 /* MoveProofWidgetBundle.swift */; };
 		4469A7ADDDEE999151C52531 /* SharedEvidenceInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BB6B7AC129F515846D92CF /* SharedEvidenceInbox.swift */; };
 		4F3F682CFC67E4A81CD1F5FE /* ShareConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 994231F73B1A4FA793C69187 /* ShareConfirmationView.swift */; };
 		67E7763A1CEB79080262EACA /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DAFB1DD814DC657D01374F8 /* ShareViewController.swift */; };
+		7010023E034835F332CA0E69 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21441D0672F6159B4E3794E /* AppGroup.swift */; };
 		9164634CD2204849CD0C231D /* SharedEvidenceInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BB6B7AC129F515846D92CF /* SharedEvidenceInbox.swift */; };
 		94AF30EF0D0CB0AAA29A7E03 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21441D0672F6159B4E3794E /* AppGroup.swift */; };
+		9BF86DA134B1B413BAF569E8 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7971608D11FEA4973BB2891F /* SwiftUI.framework */; };
+		A6C38DDDC36455ADA5639A2E /* InspectionSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4B5A67F0AD1C1960E67835 /* InspectionSnapshot.swift */; };
+		D510E6CBBFE0F06BEA9C8055 /* InspectionProgressWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 151ABFE0EDC1B6B2CD2A836D /* InspectionProgressWidget.swift */; };
+		D9FAE380511FEF06315C32E1 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2ACFDFBB7267ECC483C4EB27 /* WidgetKit.framework */; };
 		EB4CB00B12138C18E855EC7A /* MoveProofShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5EC38DC031AC034973C5DD21 /* MoveProofShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EE4A087FA034279136D5E927 /* InspectionSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4B5A67F0AD1C1960E67835 /* InspectionSnapshot.swift */; };
 		F06A4599487307ECC82D7119 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1893397EB786CB0B491641E0 /* Foundation.framework */; };
 		F49BBB635470FC20EF20C9A6 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21441D0672F6159B4E3794E /* AppGroup.swift */; };
 		F73DFEF217DF2FBDA39B9EBA /* SharedItemCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04DA35313CE150B6F9D175A1 /* SharedItemCollector.swift */; };
+		FBF7A9565E06EBFC3D7043C6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1893397EB786CB0B491641E0 /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,6 +50,13 @@
 			remoteGlobalIDString = 7ED7BACB447C14F6552E238C;
 			remoteInfo = MoveProofShareExtension;
 		};
+		88C0446A86D635854D7D47A1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2AF98911305CD64A0065A469 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 583F99340DC759615929F1D4;
+			remoteInfo = MoveProofWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -51,6 +67,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				EB4CB00B12138C18E855EC7A /* MoveProofShareExtension.appex in Embed Foundation Extensions */,
+				1F48933F84C79ABC75FD837F /* MoveProofWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -59,16 +76,24 @@
 
 /* Begin PBXFileReference section */
 		04DA35313CE150B6F9D175A1 /* SharedItemCollector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedItemCollector.swift; sourceTree = "<group>"; };
+		151ABFE0EDC1B6B2CD2A836D /* InspectionProgressWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InspectionProgressWidget.swift; sourceTree = "<group>"; };
 		1893397EB786CB0B491641E0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		1F4B5A67F0AD1C1960E67835 /* InspectionSnapshot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InspectionSnapshot.swift; sourceTree = "<group>"; };
+		2ACFDFBB7267ECC483C4EB27 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		2AF98919305CD64A0065A469 /* MoveProof.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoveProof.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AF9892B305CD64E0065A469 /* MoveProofTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MoveProofTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AF98935305CD64E0065A469 /* MoveProofUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MoveProofUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		36BB6B7AC129F515846D92CF /* SharedEvidenceInbox.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedEvidenceInbox.swift; sourceTree = "<group>"; };
+		42E520DCE4A1CF3CFAE62861 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4874753EC849282493B67E9F /* InspectionProgressProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InspectionProgressProvider.swift; sourceTree = "<group>"; };
 		4DAFB1DD814DC657D01374F8 /* ShareViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		5573B0F4B994B971B8E883E9 /* MoveProofShareExtension.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = MoveProofShareExtension.entitlements; sourceTree = "<group>"; };
 		5EC38DC031AC034973C5DD21 /* MoveProofShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MoveProofShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		7971608D11FEA4973BB2891F /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		85B55E9EC40D22C7BC4EE829 /* MoveProofWidget.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = MoveProofWidget.entitlements; sourceTree = "<group>"; };
+		98DFD9510FAB928CAD0F7EBE /* MoveProofWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MoveProofWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		994231F73B1A4FA793C69187 /* ShareConfirmationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareConfirmationView.swift; sourceTree = "<group>"; };
+		A0FAAE9D95654F7152C45204 /* MoveProofWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MoveProofWidgetBundle.swift; sourceTree = "<group>"; };
 		D21441D0672F6159B4E3794E /* AppGroup.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppGroup.swift; sourceTree = "<group>"; };
 		F7DED35E17D86F7FF15B6887 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -98,6 +123,16 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		26F924260E63FC322CC80DF5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FBF7A9565E06EBFC3D7043C6 /* Foundation.framework in Frameworks */,
+				D9FAE380511FEF06315C32E1 /* WidgetKit.framework in Frameworks */,
+				9BF86DA134B1B413BAF569E8 /* SwiftUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2AF98916305CD64A0065A469 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -143,6 +178,19 @@
 			path = MoveProofShareExtension;
 			sourceTree = "<group>";
 		};
+		27AAFA099349184052E363E4 /* MoveProofWidget */ = {
+			isa = PBXGroup;
+			children = (
+				4874753EC849282493B67E9F /* InspectionProgressProvider.swift */,
+				151ABFE0EDC1B6B2CD2A836D /* InspectionProgressWidget.swift */,
+				A0FAAE9D95654F7152C45204 /* MoveProofWidgetBundle.swift */,
+				42E520DCE4A1CF3CFAE62861 /* Info.plist */,
+				85B55E9EC40D22C7BC4EE829 /* MoveProofWidget.entitlements */,
+			);
+			name = MoveProofWidget;
+			path = MoveProofWidget;
+			sourceTree = "<group>";
+		};
 		2AF98910305CD64A0065A469 = {
 			isa = PBXGroup;
 			children = (
@@ -153,6 +201,7 @@
 				8C079BD13B8B00566C398F9E /* MoveProofShared */,
 				50DE712BE0D39AB4175086AA /* Frameworks */,
 				1BA38BFEE3CDC1571337A2A8 /* MoveProofShareExtension */,
+				27AAFA099349184052E363E4 /* MoveProofWidget */,
 			);
 			sourceTree = "<group>";
 		};
@@ -163,6 +212,7 @@
 				2AF9892B305CD64E0065A469 /* MoveProofTests.xctest */,
 				2AF98935305CD64E0065A469 /* MoveProofUITests.xctest */,
 				5EC38DC031AC034973C5DD21 /* MoveProofShareExtension.appex */,
+				98DFD9510FAB928CAD0F7EBE /* MoveProofWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -171,6 +221,8 @@
 			isa = PBXGroup;
 			children = (
 				8A47A14F0DB9E83B8A678745 /* iOS */,
+				2ACFDFBB7267ECC483C4EB27 /* WidgetKit.framework */,
+				7971608D11FEA4973BB2891F /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -210,6 +262,7 @@
 			);
 			dependencies = (
 				9895D8E9DF2B2F9FEA0132A9 /* PBXTargetDependency */,
+				CD0155A8E579AD041299F2A0 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				2AF9891B305CD64A0065A469 /* MoveProof */,
@@ -260,6 +313,23 @@
 			productName = MoveProofUITests;
 			productReference = 2AF98935305CD64E0065A469 /* MoveProofUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		583F99340DC759615929F1D4 /* MoveProofWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7E734C6DDF01E0CC1A06F50A /* Build configuration list for PBXNativeTarget "MoveProofWidgetExtension" */;
+			buildPhases = (
+				2F12A99C6F6C4291029FF85E /* Sources */,
+				26F924260E63FC322CC80DF5 /* Frameworks */,
+				569F9E86E084307868A8D93B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MoveProofWidgetExtension;
+			productName = MoveProofWidgetExtension;
+			productReference = 98DFD9510FAB928CAD0F7EBE /* MoveProofWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 		7ED7BACB447C14F6552E238C /* MoveProofShareExtension */ = {
 			isa = PBXNativeTarget;
@@ -319,6 +389,7 @@
 				2AF9892A305CD64E0065A469 /* MoveProofTests */,
 				2AF98934305CD64E0065A469 /* MoveProofUITests */,
 				7ED7BACB447C14F6552E238C /* MoveProofShareExtension */,
+				583F99340DC759615929F1D4 /* MoveProofWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -339,6 +410,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		2AF98933305CD64E0065A469 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		569F9E86E084307868A8D93B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -379,6 +457,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2F12A99C6F6C4291029FF85E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				11E6CF0B58F82CD0BF50AF87 /* InspectionProgressProvider.swift in Sources */,
+				D510E6CBBFE0F06BEA9C8055 /* InspectionProgressWidget.swift in Sources */,
+				311695A41A3B831167979DA9 /* MoveProofWidgetBundle.swift in Sources */,
+				7010023E034835F332CA0E69 /* AppGroup.swift in Sources */,
+				A6C38DDDC36455ADA5639A2E /* InspectionSnapshot.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8F3F23CA69E97A66EA352753 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -409,6 +499,12 @@
 			name = MoveProofShareExtension;
 			target = 7ED7BACB447C14F6552E238C /* MoveProofShareExtension */;
 			targetProxy = 4F49A906F1928F56EF4DA04B /* PBXContainerItemProxy */;
+		};
+		CD0155A8E579AD041299F2A0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MoveProofWidgetExtension;
+			target = 583F99340DC759615929F1D4 /* MoveProofWidgetExtension */;
+			targetProxy = 88C0446A86D635854D7D47A1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -676,6 +772,39 @@
 			};
 			name = Release;
 		};
+		3DEFEC2DD7BEB955FEA0AD01 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = MoveProofWidget/MoveProofWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MoveProofWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MoveProof;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.krischuang.MoveProof.WidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		6C3573E54240B4356E5D30D5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -705,6 +834,38 @@
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
+		};
+		7459640F0C2B6AF5E374B3BD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = MoveProofWidget/MoveProofWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MoveProofWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MoveProof;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.krischuang.MoveProof.WidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
 		};
 		776A3CE234836E6E76799C40 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -770,6 +931,15 @@
 			buildConfigurations = (
 				2AF98946305CD64E0065A469 /* Debug */,
 				2AF98947305CD64E0065A469 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7E734C6DDF01E0CC1A06F50A /* Build configuration list for PBXNativeTarget "MoveProofWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3DEFEC2DD7BEB955FEA0AD01 /* Release */,
+				7459640F0C2B6AF5E374B3BD /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
