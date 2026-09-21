@@ -133,14 +133,20 @@ extension, then MoveProof again — and **passed on a clean `iPhone 17` simulato
 `-parallel-testing-enabled NO`, with screenshots captured at each stage. That run is the
 evidence for the "appears in the real share sheet" row above.
 
-Both UI tests are, however, **intermittent when run back to back in one session**: the
-keyboard sometimes does not attach before the test types, and the share sheet sometimes
-takes longer than expected to populate its app row. This is stated rather than hidden
-because a suite that is green only on a fresh simulator should be described that way.
-It is a harness limitation, not an app defect — the behaviour each UI test covers is also
-covered deterministically by the unit target (`SharedItemCollectorTests`,
-`ImportSharedEvidenceTests`, and the use case suites), which is why the 82-test figure is
-quoted separately and is the one to rely on.
+That test depends on simulator state it cannot control — photos must exist in the
+library, and Photos' grid does not respond to element-relative taps — so it is **skipped
+by default in the shared scheme** and run explicitly with `-only-testing:`. That is a
+deliberate configuration choice, recorded here rather than hidden: `xcodebuild test`
+should be trustworthy, and a test that depends on the state of another app is not a
+sound thing to gate it on.
+
+Nothing is lost by that: the extension's own logic is covered deterministically by
+`SharedItemCollectorTests`, and the import rules by `ImportSharedEvidenceTests`, both in
+the unit target.
+
+The project also now ships a **shared scheme** (`xcshareddata/xcschemes/MoveProof.xcscheme`).
+Previously the only scheme lived in `xcuserdata/`, which is gitignored, so a fresh clone
+would have had Xcode auto-generate one.
 
 The one thing still not automated is placing the widget on the Home Screen. Driving
 SpringBoard's widget gallery proved unreliable, so that attempt was removed rather than

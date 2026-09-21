@@ -70,13 +70,12 @@ final class MoveProofWalkthroughUITests: XCTestCase {
             ? app.textViews.firstMatch
             : app.textFields["Describe the damage — where it is and how bad it looks"]
         XCTAssertTrue(noteField.waitForExistence(timeout: 5))
+        // Tap, then wait for the field to actually take focus before typing. Waiting on
+        // `app.keyboards` instead would be wrong: when the simulator has a hardware
+        // keyboard attached there is no software keyboard to wait for, and typing
+        // still works.
         noteField.tap()
-        // Wait for focus before typing: tapping a SwiftUI TextField returns before the
-        // keyboard is attached, and typing into an unfocused field fails outright.
-        XCTAssertTrue(
-            app.keyboards.element.waitForExistence(timeout: 5),
-            "Tapping the note field should raise the keyboard"
-        )
+        waitForKeyboardFocus(on: noteField)
         noteField.typeText("Deep scratch across the vinyl near the oven.")
 
         dismissKeyboard(in: app)
@@ -107,6 +106,23 @@ final class MoveProofWalkthroughUITests: XCTestCase {
             app.staticTexts["This room isn't ready yet"].waitForExistence(timeout: 5),
             "Sign-off must be blocked while required checklist items are unreviewed"
         )
+    }
+
+    /// Waits until the field reports keyboard focus, retapping once if it did not take.
+    ///
+    /// SwiftUI's `TextField` returns from `tap()` before focus is established, and
+    /// typing into an unfocused field fails outright.
+    private func waitForKeyboardFocus(on element: XCUIElement, timeout: TimeInterval = 5) {
+        let deadline = Date().addingTimeInterval(timeout)
+        var retried = false
+        while Date() < deadline {
+            if element.value(forKey: "hasKeyboardFocus") as? Bool == true { return }
+            if !retried, Date() > deadline.addingTimeInterval(-timeout / 2) {
+                element.tap()
+                retried = true
+            }
+            Thread.sleep(forTimeInterval: 0.25)
+        }
     }
 
     /// Puts the keyboard away so it cannot cover the control we are about to tap.
