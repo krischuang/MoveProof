@@ -125,7 +125,9 @@ final class SharedItemCollectorTests: XCTestCase {
         XCTAssertEqual(candidates.map(\.displayName), ["Photo", "Report.pdf"])
     }
 
-    func testAnAttachmentWithNoNameStillGetsSomethingTheTenantCanRead() {
+    func testAnAttachmentWithNoNameIsNamedByKindAndDate() {
+        // Photos hands attachments over with no suggested name, so this is the common
+        // case rather than an edge case.
         let collector = SharedItemCollector(inputItems: [
             extensionItem([provider(data: pngData, typeIdentifier: UTType.png.identifier, suggestedName: nil)])
         ])
@@ -133,7 +135,30 @@ final class SharedItemCollectorTests: XCTestCase {
         guard case .ready(let candidates) = collector.initialOutcome else {
             return XCTFail("Expected a ready outcome, got \(collector.initialOutcome)")
         }
-        XCTAssertEqual(candidates.first?.displayName, "Shared file")
+        let name = try? XCTUnwrap(candidates.first?.displayName)
+        XCTAssertEqual(
+            name?.hasPrefix("Photo shared "),
+            true,
+            "An unnamed photo should still be identifiable in the evidence library, got \(name ?? "nil")"
+        )
+    }
+
+    func testAnUnnamedPDFIsNamedAsADocument() {
+        let itemProvider = provider(data: Data("%PDF".utf8), typeIdentifier: UTType.pdf.identifier, suggestedName: nil)
+        let name = SharedItemCollector.displayName(
+            for: itemProvider,
+            typeIdentifier: UTType.pdf.identifier,
+            receivedAt: Date(timeIntervalSince1970: 1_780_000_000)
+        )
+        XCTAssertTrue(name.hasPrefix("Document shared "), "got \(name)")
+    }
+
+    func testASuppliedNameIsAlwaysPreferredOverTheGeneratedOne() {
+        let itemProvider = provider(data: pngData, typeIdentifier: UTType.png.identifier, suggestedName: "Kitchen floor")
+        XCTAssertEqual(
+            SharedItemCollector.displayName(for: itemProvider, typeIdentifier: UTType.png.identifier),
+            "Kitchen floor"
+        )
     }
 
     func testAnEmptyShareSheetInvocationIsReportedRatherThanCrashing() {

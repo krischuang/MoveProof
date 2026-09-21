@@ -63,11 +63,30 @@ struct SharedItemCollector {
     var initialOutcome: Outcome {
         guard !providers.isEmpty else { return .nothingUsable }
         return .ready(candidates: providers.map { provider in
-            Candidate(
-                displayName: provider.suggestedName ?? "Shared file",
-                typeIdentifier: Self.bestTypeIdentifier(for: provider) ?? "public.data"
+            let typeIdentifier = Self.bestTypeIdentifier(for: provider) ?? "public.data"
+            return Candidate(
+                displayName: Self.displayName(for: provider, typeIdentifier: typeIdentifier),
+                typeIdentifier: typeIdentifier
             )
         })
+    }
+
+    /// A name the tenant will recognise later in their evidence library.
+    ///
+    /// Photos hands over attachments with no suggested name at all, so falling back
+    /// to a bare "Shared file" would leave a library full of identical rows. Naming
+    /// it by kind and date at least tells the tenant what it is and when it arrived.
+    static func displayName(
+        for provider: NSItemProvider,
+        typeIdentifier: String,
+        receivedAt: Date = Date()
+    ) -> String {
+        if let suggested = provider.suggestedName?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !suggested.isEmpty {
+            return suggested
+        }
+        let kind = UTType(typeIdentifier)?.conforms(to: .pdf) == true ? "Document" : "Photo"
+        return "\(kind) shared \(receivedAt.formatted(date: .abbreviated, time: .shortened))"
     }
 
     /// Copies every accepted attachment into the App Group inbox.
@@ -79,7 +98,7 @@ struct SharedItemCollector {
 
         for provider in providers {
             guard let typeIdentifier = Self.bestTypeIdentifier(for: provider) else { continue }
-            let displayName = provider.suggestedName ?? "Shared file"
+            let displayName = Self.displayName(for: provider, typeIdentifier: typeIdentifier)
 
             do {
                 if let url = await Self.loadFile(from: provider, typeIdentifier: typeIdentifier) {
