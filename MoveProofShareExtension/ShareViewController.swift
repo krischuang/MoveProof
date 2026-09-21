@@ -8,13 +8,11 @@ import UIKit
 /// share sheet hanging around after the tenant is finished.
 final class ShareViewController: UIViewController {
 
-    private let collector = SharedItemCollector()
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
         let rootView = ShareConfirmationView(
-            collector: collector,
+            collector: SharedItemCollector(inputItems: extensionContext?.inputItems ?? []),
             onFinish: { [weak self] in
                 // The files are already in the App Group inbox by this point, so the
                 // main app has everything it needs whether or not it is running.
@@ -36,8 +34,6 @@ final class ShareViewController: UIViewController {
             hosting.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
         hosting.didMove(toParent: self)
-
-        collector.prepare(inputItems: extensionContext?.inputItems ?? [])
     }
 
     /// Leaves the confirmation on screen briefly so the tenant sees that the file
