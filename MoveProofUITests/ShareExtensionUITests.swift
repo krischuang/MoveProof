@@ -58,7 +58,10 @@ final class ShareExtensionUITests: XCTestCase {
 
         // MARK: Share a photo from Photos into MoveProof
 
+        // Terminate first so Photos starts on the grid rather than wherever a
+        // previous test in the same run left it.
         let photos = XCUIApplication(bundleIdentifier: "com.apple.mobileslideshow")
+        photos.terminate()
         photos.launch()
         XCTAssertTrue(photos.wait(for: .runningForeground, timeout: 15), "Photos should open")
 
@@ -71,20 +74,43 @@ final class ShareExtensionUITests: XCTestCase {
             settle()
         }
 
-        // Open a photo. Photos' grid uses a zoomable layout whose cells do not
-        // respond reliably to element-relative taps, so tap a point in the window
-        // where the first row of thumbnails sits.
         let firstPhoto = photos.images.matching(NSPredicate(format: "label CONTAINS 'Photo'")).firstMatch
         XCTAssertTrue(
             firstPhoto.waitForExistence(timeout: 20),
             "The simulator library should contain the seeded photo"
         )
-        photos.coordinate(withNormalizedOffset: CGVector(dx: 0.16, dy: 0.22)).tap()
-        settle()
-        attachScreenshot(named: "photos-after-opening-photo")
 
+        // Photos' grid uses a zoomable layout whose cells do not respond to
+        // element-relative taps, so open a photo by tapping the window where a
+        // thumbnail sits. Which row that is depends on how the grid is scrolled, so
+        // try a few positions rather than depending on one magic coordinate.
         let shareButton = photos.buttons["Share"].firstMatch
-        XCTAssertTrue(shareButton.waitForExistence(timeout: 15), "Photos should offer a Share button")
+        let candidates: [CGVector] = [
+            CGVector(dx: 0.16, dy: 0.22),
+            CGVector(dx: 0.50, dy: 0.35),
+            CGVector(dx: 0.16, dy: 0.45),
+            CGVector(dx: 0.83, dy: 0.60)
+        ]
+        var openedAPhoto = false
+        for point in candidates {
+            photos.coordinate(withNormalizedOffset: point).tap()
+            settle()
+            if shareButton.waitForExistence(timeout: 6) {
+                openedAPhoto = true
+                break
+            }
+            // Not a photo — go back to the grid and try elsewhere.
+            if photos.buttons["Back"].firstMatch.exists {
+                photos.buttons["Back"].firstMatch.tap()
+                settle()
+            }
+        }
+
+        attachScreenshot(named: "photos-after-opening-photo")
+        XCTAssertTrue(
+            openedAPhoto,
+            "Opening a photo should reveal Photos' Share button"
+        )
         shareButton.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         settle()
 
@@ -92,17 +118,26 @@ final class ShareExtensionUITests: XCTestCase {
 
         // UIActivityViewController is presented inside the host app's process, so the
         // sheet and everything in it is queried through Photos rather than SpringBoard.
-        attachScreenshot(named: "share-sheet")
         let moveProofActivity = photos.staticTexts["MoveProof"].firstMatch
-        if !moveProofActivity.waitForExistence(timeout: 20) {
-            // The app row may be past the end of the first page of the activity list.
+
+        // The sheet populates its app row asynchronously, and MoveProof may sit past
+        // the end of the first page, so look, scroll, and look again a few times.
+        var sheetShowsMoveProof = moveProofActivity.waitForExistence(timeout: 25)
+        for _ in 0..<3 where !sheetShowsMoveProof {
             if photos.collectionViews.firstMatch.exists {
                 photos.collectionViews.firstMatch.swipeLeft()
-                settle()
+            } else {
+                photos.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.62))
+                    .press(forDuration: 0.05,
+                           thenDragTo: photos.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.62)))
             }
+            settle()
+            sheetShowsMoveProof = moveProofActivity.waitForExistence(timeout: 8)
         }
+
+        attachScreenshot(named: "share-sheet")
         XCTAssertTrue(
-            moveProofActivity.waitForExistence(timeout: 15),
+            sheetShowsMoveProof,
             "MoveProof should appear in the share sheet for a photo"
         )
         moveProofActivity.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()

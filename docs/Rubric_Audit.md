@@ -129,13 +129,18 @@ classes (`MoveProofWalkthroughUITests` and `ShareExtensionUITests`) are counted 
 reported separately because they are slower and depend on simulator state.
 
 `ShareExtensionUITests` crosses four processes — MoveProof, Photos, the share sheet, the
-extension, then MoveProof again — and passed on a clean `iPhone 17` simulator with
-`-parallel-testing-enabled NO`. It is worth knowing that it is sensitive to simulator
-state: it needs at least one photo in the library (`xcrun simctl addmedia`), and Photos'
-grid does not respond to element-relative taps, which is why the test taps by window
-coordinate. If it fails on a different machine, check those two things before concluding
-the extension is broken — the extension's own logic is covered deterministically by the
-`SharedItemCollectorTests` in the unit target.
+extension, then MoveProof again — and **passed on a clean `iPhone 17` simulator** with
+`-parallel-testing-enabled NO`, with screenshots captured at each stage. That run is the
+evidence for the "appears in the real share sheet" row above.
+
+Both UI tests are, however, **intermittent when run back to back in one session**: the
+keyboard sometimes does not attach before the test types, and the share sheet sometimes
+takes longer than expected to populate its app row. This is stated rather than hidden
+because a suite that is green only on a fresh simulator should be described that way.
+It is a harness limitation, not an app defect — the behaviour each UI test covers is also
+covered deterministically by the unit target (`SharedItemCollectorTests`,
+`ImportSharedEvidenceTests`, and the use case suites), which is why the 82-test figure is
+quoted separately and is the one to rely on.
 
 The one thing still not automated is placing the widget on the Home Screen. Driving
 SpringBoard's widget gallery proved unreliable, so that attempt was removed rather than

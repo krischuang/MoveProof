@@ -53,6 +53,10 @@ final class MoveProofWalkthroughUITests: XCTestCase {
         flooring.tap()
 
         app.buttons["Damaged"].firstMatch.tap()
+        XCTAssertTrue(
+            scrollToElement(app.buttons["Record this item"], in: app),
+            "The record button should be reachable"
+        )
         app.buttons["Record this item"].tap()
 
         XCTAssertTrue(
@@ -67,8 +71,19 @@ final class MoveProofWalkthroughUITests: XCTestCase {
             : app.textFields["Describe the damage — where it is and how bad it looks"]
         XCTAssertTrue(noteField.waitForExistence(timeout: 5))
         noteField.tap()
+        // Wait for focus before typing: tapping a SwiftUI TextField returns before the
+        // keyboard is attached, and typing into an unfocused field fails outright.
+        XCTAssertTrue(
+            app.keyboards.element.waitForExistence(timeout: 5),
+            "Tapping the note field should raise the keyboard"
+        )
         noteField.typeText("Deep scratch across the vinyl near the oven.")
 
+        dismissKeyboard(in: app)
+        XCTAssertTrue(
+            scrollToElement(app.buttons["Record this item"], in: app),
+            "The record button should be reachable after entering a note"
+        )
         app.buttons["Record this item"].tap()
 
         // Back on the room screen, the item should now read as damaged.
@@ -92,6 +107,17 @@ final class MoveProofWalkthroughUITests: XCTestCase {
             app.staticTexts["This room isn't ready yet"].waitForExistence(timeout: 5),
             "Sign-off must be blocked while required checklist items are unreviewed"
         )
+    }
+
+    /// Puts the keyboard away so it cannot cover the control we are about to tap.
+    private func dismissKeyboard(in app: XCUIApplication) {
+        guard app.keyboards.element.exists else { return }
+        if app.buttons["Return"].exists {
+            app.buttons["Return"].tap()
+        } else {
+            app.navigationBars.firstMatch.tap()
+        }
+        _ = app.keyboards.element.waitForNonExistence(timeout: 3)
     }
 
     /// Swipes up until `element` exists and is on screen, or gives up.

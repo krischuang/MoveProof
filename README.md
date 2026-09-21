@@ -446,11 +446,33 @@ xcodebuild test -project MoveProof.xcodeproj -scheme MoveProof \
   -only-testing:MoveProofUITests/MoveProofWalkthroughUITests
 ```
 
-**Simulator notes.** Pass `-parallel-testing-enabled NO` when you want the test to run
-on the named simulator rather than an ephemeral clone — necessary if you want to
-inspect the App Group container afterwards. The share-sheet test drives Photos and
-SpringBoard, so it is slower and more sensitive to simulator state than the rest;
-reset the simulator if it misbehaves.
+**Simulator notes, and an honest caveat about the UI tests.**
+
+Pass `-parallel-testing-enabled NO` when you want a test to run on the named simulator
+rather than an ephemeral clone — necessary if you want to inspect the App Group
+container afterwards.
+
+The **82 unit tests are deterministic** and are the number quoted throughout this
+README. The two UI tests are a different proposition: they drive real UI, and the
+share-sheet one crosses four processes (MoveProof → Photos → the share sheet → the
+extension → MoveProof). Both pass reliably when run on a freshly erased simulator, and
+both have been observed to fail intermittently when run back to back in one session —
+the keyboard not attaching in time, or the share sheet taking longer than expected to
+populate its app row. That is a test-harness limitation, not an app defect: the
+behaviour each one covers is also covered deterministically by the unit tests
+(`SharedItemCollectorTests`, `ImportSharedEvidenceTests`, the use case suites).
+
+If you want to see them pass, run each one on a clean simulator:
+
+```bash
+xcrun simctl erase "iPhone 17"
+xcrun simctl boot "iPhone 17"
+xcrun simctl addmedia "iPhone 17" <any-image-file>   # only needed for the share test
+xcodebuild test -project MoveProof.xcodeproj -scheme MoveProof \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -parallel-testing-enabled NO \
+  -only-testing:MoveProofUITests/MoveProofWalkthroughUITests
+```
 
 ## What is verified, and how
 
