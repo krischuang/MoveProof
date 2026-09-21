@@ -35,12 +35,14 @@ struct SharedItemCollector {
     }
 
     /// One attachment the extension is prepared to copy.
+    ///
+    /// Identified by its position in the share sheet's attachment list rather than a
+    /// fresh UUID, so two reads of the same invocation describe the same items and
+    /// equality compares what the candidate actually is.
     struct Candidate: Identifiable, Equatable {
-        let id = UUID()
+        let id: Int
         let displayName: String
         let typeIdentifier: String
-
-        static func == (lhs: Candidate, rhs: Candidate) -> Bool { lhs.id == rhs.id }
     }
 
     /// Type identifiers the extension is willing to carry. Kept broad and purely
@@ -62,9 +64,10 @@ struct SharedItemCollector {
     /// What the tenant should see before deciding to save.
     var initialOutcome: Outcome {
         guard !providers.isEmpty else { return .nothingUsable }
-        return .ready(candidates: providers.map { provider in
+        return .ready(candidates: providers.enumerated().map { index, provider in
             let typeIdentifier = Self.bestTypeIdentifier(for: provider) ?? "public.data"
             return Candidate(
+                id: index,
                 displayName: Self.displayName(for: provider, typeIdentifier: typeIdentifier),
                 typeIdentifier: typeIdentifier
             )
