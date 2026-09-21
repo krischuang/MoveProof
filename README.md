@@ -429,7 +429,7 @@ xcrun simctl list devices available | grep iPhone
 
 ## Testing
 
-**Unit tests (69 tests, fast, no UI):**
+**Unit tests (82 tests, fast, no UI):**
 
 ```bash
 xcodebuild test -project MoveProof.xcodeproj -scheme MoveProof \
@@ -459,7 +459,7 @@ Stated plainly, because "it compiles" is not verification.
 | Claim | How it was verified |
 | --- | --- |
 | App builds, all three targets | `xcodebuild build` — succeeds |
-| 69 unit tests pass | `xcodebuild test -only-testing:MoveProofTests` — 69 executed, 0 failures |
+| 82 unit tests pass | `xcodebuild test -only-testing:MoveProofTests` — 82 executed, 0 failures |
 | Business rules fire with tenant-facing wording | Unit tests, plus `MoveProofWalkthroughUITests` asserting on the exact on-screen strings |
 | Core Data predicates are valid and correctly scoped | `CoreDataRepositoryTests` against a real in-memory store |
 | Delete rules behave as modelled | `testDeletingARoomKeepsTheTenantsEvidenceInTheLibrary` |
@@ -469,12 +469,29 @@ Stated plainly, because "it compiles" is not verification.
 | Widget/app share the same snapshot | `testASnapshotWrittenByTheAppIsReadableByTheWidget` |
 | Extensions carry the App Group entitlement | Inspected the built `.appex` binaries |
 | Share Extension ↔ app hand-off works | `ImportSharedEvidenceTests` writes into the real App Group inbox exactly as the extension does, then imports through the use case |
+| Share Extension's own logic works | `SharedItemCollectorTests` — 13 tests against real `NSItemProvider`s, asserting which attachments are accepted, which UTI is recorded, and that bytes arrive unchanged |
+| MoveProof appears in the real iOS share sheet, saves, and dismisses | `ShareExtensionUITests` passed end to end: Photos → Share → **MoveProof** → *Save to MoveProof* → sheet dismisses → the app finds it in *Shared* → import files it into the evidence library |
 
 **Requires manual confirmation:** placing the widget on the Home Screen in each family.
 Automating SpringBoard's widget gallery proved unreliable, so this is left as a manual
 check rather than claimed as automated. To confirm: long-press the Home Screen → *Edit*
 → *Add Widget* → search **MoveProof** → *Walkthrough progress* → swipe between the small
 and medium previews → *Add Widget*.
+
+**End-to-end share-sheet test:**
+
+```bash
+xcrun simctl addmedia "iPhone 17" <any-image-file>   # the library must contain a photo
+xcodebuild test -project MoveProof.xcodeproj -scheme MoveProof \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -parallel-testing-enabled NO \
+  -only-testing:MoveProofUITests/ShareExtensionUITests
+```
+
+This one crosses four processes and is sensitive to simulator state — it needs a photo in
+the library, and it taps Photos' grid by window coordinate because that grid does not
+respond to element-relative taps. If it fails, check those before concluding the extension
+is broken; the extension's own logic is covered deterministically by `SharedItemCollectorTests`.
 
 ## Git workflow
 
