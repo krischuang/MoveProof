@@ -483,8 +483,9 @@ Stated plainly, because "it compiles" is not verification.
 | Claim | How it was verified |
 | --- | --- |
 | App builds, all three targets | `xcodebuild build` — succeeds |
+| Whole default suite is green | `xcodebuild test` — **82 unit + 5 UI tests, 0 failures** |
 | 82 unit tests pass | `xcodebuild test -only-testing:MoveProofTests` — 82 executed, 0 failures |
-| Business rules fire with tenant-facing wording | Unit tests, plus `MoveProofWalkthroughUITests` asserting on the exact on-screen strings |
+| Business rules fire with tenant-facing wording | Unit tests, plus `MoveProofWalkthroughUITests` asserting the exact on-screen strings for both refusals, including the what-to-do-next line |
 | Core Data predicates are valid and correctly scoped | `CoreDataRepositoryTests` against a real in-memory store |
 | Delete rules behave as modelled | `testDeletingARoomKeepsTheTenantsEvidenceInTheLibrary` |
 | App Group container is reachable | Inspected on disk in the simulator; `group.com.krischuang.MoveProof` is created on launch |
