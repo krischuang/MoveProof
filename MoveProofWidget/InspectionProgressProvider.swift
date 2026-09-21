@@ -48,18 +48,3 @@ struct InspectionProgressEntry: TimelineEntry {
     let date: Date
     let snapshot: InspectionSnapshot
 }
-
-extension InspectionSnapshot {
-
-    /// Gallery preview data. Not used once the app has published a real snapshot.
-    static let sample = InspectionSnapshot(
-        areasTotal: 8,
-        areasComplete: 5,
-        areasNeedingAttention: 2,
-        evidenceCount: 14,
-        pendingInboxCount: 1,
-        daysUntilConditionReportDue: 3,
-        generatedAt: Date(timeIntervalSince1970: 1_780_000_000),
-        hasActiveTenancy: true
-    )
-}
