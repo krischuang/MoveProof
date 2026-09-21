@@ -9,11 +9,30 @@ struct InspectionStore {
 
     let container: NSPersistentContainer
 
+    /// Marker used only to locate the bundle the compiled model lives in.
+    private final class BundleMarker {}
+
+    /// The managed object model, loaded exactly once for the whole process.
+    ///
+    /// `NSPersistentContainer(name:)` loads a fresh copy of the model every time it
+    /// is called. With two containers alive — the app's real store and a test's
+    /// in-memory one — Core Data then sees two `NSEntityDescription`s claiming the
+    /// same `NSManagedObject` subclass, and `+[Entity entity]` can no longer tell
+    /// them apart. Sharing one model instance removes the ambiguity.
+    private static let managedObjectModel: NSManagedObjectModel = {
+        let bundle = Bundle(for: BundleMarker.self)
+        guard let url = bundle.url(forResource: "MoveProof", withExtension: "momd"),
+              let model = NSManagedObjectModel(contentsOf: url) else {
+            fatalError("MoveProof's Core Data model is missing from the app bundle.")
+        }
+        return model
+    }()
+
     /// - Parameter inMemory: when `true`, the store is discarded on teardown.
     ///   Used by SwiftUI previews and the repository integration tests so they
     ///   never touch the tenant's real records.
     init(inMemory: Bool = false) {
-        container = NSPersistentContainer(name: "MoveProof")
+        container = NSPersistentContainer(name: "MoveProof", managedObjectModel: Self.managedObjectModel)
 
         if inMemory {
             let description = NSPersistentStoreDescription()

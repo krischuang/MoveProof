@@ -8,8 +8,34 @@ import XCTest
 /// rather than that the code compiles.
 final class ShareExtensionUITests: XCTestCase {
 
+    private let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+
     override func setUp() {
         continueAfterFailure = false
+    }
+
+    /// Gives the system a beat to finish an animation. Cross-process transitions do
+    /// not always raise an event the framework can wait on.
+    private func settle() {
+        Thread.sleep(forTimeInterval: 1.5)
+    }
+
+    /// Photos shows a one-time intro on a fresh simulator that blocks the grid.
+    private func dismissAnyOnboarding(in app: XCUIApplication) {
+        for label in ["Continue", "Get Started", "Not Now", "Later"] {
+            let button = app.buttons[label].firstMatch
+            if button.waitForExistence(timeout: 2) {
+                button.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+                settle()
+            }
+        }
+    }
+
+    private func attachScreenshot(named name: String) {
+        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 
     func testSharingAPhotoFromPhotosPutsItInTheMoveProofInbox() throws {
@@ -36,51 +62,59 @@ final class ShareExtensionUITests: XCTestCase {
         photos.launch()
         XCTAssertTrue(photos.wait(for: .runningForeground, timeout: 15), "Photos should open")
 
-        // Open the first photo in the library.
+        dismissAnyOnboarding(in: photos)
+
+        // Open the first photo in the library. Photos reports grid items as present
+        // but not hittable on a fresh simulator, so tap by coordinate instead of
+        // relying on the element's own hit-testing.
         let firstPhoto = photos.images.matching(NSPredicate(format: "label CONTAINS 'Photo'")).firstMatch
-        if firstPhoto.waitForExistence(timeout: 10) {
-            firstPhoto.tap()
-        } else {
-            let anyCell = photos.cells.firstMatch
-            XCTAssertTrue(anyCell.waitForExistence(timeout: 10), "The simulator library should contain the seeded photo")
-            anyCell.tap()
-        }
+        XCTAssertTrue(
+            firstPhoto.waitForExistence(timeout: 20),
+            "The simulator library should contain the seeded photo"
+        )
+        firstPhoto.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        settle()
 
         let shareButton = photos.buttons["Share"].firstMatch
-        XCTAssertTrue(shareButton.waitForExistence(timeout: 10), "Photos should offer a Share button")
-        shareButton.tap()
+        XCTAssertTrue(shareButton.waitForExistence(timeout: 15), "Photos should offer a Share button")
+        shareButton.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        settle()
 
         // MARK: MoveProof must be offered in the share sheet
 
-        let moveProofActivity = photos.staticTexts["MoveProof"].firstMatch
-        let appeared = moveProofActivity.waitForExistence(timeout: 15)
-        if !appeared {
-            // The app row may be past the end of the first page of the sheet.
-            photos.collectionViews.firstMatch.swipeLeft()
+        // The share sheet is presented by SpringBoard, not by Photos, so query it there.
+        let moveProofActivity = springboard.staticTexts["MoveProof"].firstMatch
+        if !moveProofActivity.waitForExistence(timeout: 20) {
+            // The app row may be past the end of the first page of the activity list.
+            springboard.collectionViews.firstMatch.swipeLeft()
+            settle()
         }
         XCTAssertTrue(
-            moveProofActivity.waitForExistence(timeout: 10),
+            moveProofActivity.waitForExistence(timeout: 15),
             "MoveProof should appear in the share sheet for a photo"
         )
-        moveProofActivity.tap()
+        moveProofActivity.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        settle()
 
         // MARK: The extension runs and saves
 
-        let saveButton = photos.buttons["Save to MoveProof"]
+        let saveButton = springboard.buttons["Save to MoveProof"].firstMatch
         XCTAssertTrue(
-            saveButton.waitForExistence(timeout: 15),
+            saveButton.waitForExistence(timeout: 20),
             "The MoveProof share extension should present its confirmation"
         )
-        saveButton.tap()
+        attachScreenshot(named: "share-extension-confirmation")
+        saveButton.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
 
         XCTAssertTrue(
-            photos.staticTexts["Saved to MoveProof"].waitForExistence(timeout: 15),
+            springboard.staticTexts["Saved to MoveProof"].firstMatch.waitForExistence(timeout: 20),
             "The extension should confirm the file was written to the shared inbox"
         )
+        attachScreenshot(named: "share-extension-saved")
 
-        // The extension dismisses itself; Photos should be back in front.
+        // The extension dismisses itself after completing the request.
         XCTAssertTrue(
-            saveButton.waitForNonExistence(timeout: 20),
+            saveButton.waitForNonExistence(timeout: 30),
             "The share extension must dismiss itself after completing the request"
         )
 

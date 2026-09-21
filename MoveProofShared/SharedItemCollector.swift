@@ -13,9 +13,16 @@ import UniformTypeIdentifiers
 /// Keeping it this thin matters for two reasons. A share extension is killed
 /// quickly if it uses much memory, and duplicating the import rules here would mean
 /// two copies of them to keep in step.
-@MainActor
-@Observable
-final class SharedItemCollector {
+///
+/// It lives in `MoveProofShared` rather than inside the extension target so the app
+/// target compiles it as well. A share extension cannot be launched from a test, but
+/// this type can — which is how `SharedItemCollectorTests` exercises the real
+/// attachment handling against real `NSItemProvider`s.
+///
+/// Deliberately a value type: the attachments are inspected once at init and the
+/// outcome is returned rather than mutated in place, so the confirmation view owns
+/// the state and this type owns none.
+struct SharedItemCollector {
 
     enum Outcome: Equatable {
         case preparing
@@ -36,29 +43,26 @@ final class SharedItemCollector {
         static func == (lhs: Candidate, rhs: Candidate) -> Bool { lhs.id == rhs.id }
     }
 
-    private(set) var outcome: Outcome = .preparing
-
     /// Type identifiers the extension is willing to carry. Kept broad and purely
     /// structural — the main app decides what is actually usable as evidence.
     private static let acceptedTypes: [UTType] = [.image, .pdf]
 
-    private var providers: [NSItemProvider] = []
+    private let providers: [NSItemProvider]
 
     /// Inspects the share sheet's attachments without copying anything yet.
-    func prepare(inputItems: [Any]) {
-        let extensionItems = inputItems.compactMap { $0 as? NSExtensionItem }
-        providers = extensionItems
+    init(inputItems: [Any]) {
+        providers = inputItems
+            .compactMap { $0 as? NSExtensionItem }
             .flatMap { $0.attachments ?? [] }
             .filter { provider in
                 Self.acceptedTypes.contains { provider.hasItemConformingToTypeIdentifier($0.identifier) }
             }
+    }
 
-        guard !providers.isEmpty else {
-            outcome = .nothingUsable
-            return
-        }
-
-        outcome = .ready(candidates: providers.map { provider in
+    /// What the tenant should see before deciding to save.
+    var initialOutcome: Outcome {
+        guard !providers.isEmpty else { return .nothingUsable }
+        return .ready(candidates: providers.map { provider in
             Candidate(
                 displayName: provider.suggestedName ?? "Shared file",
                 typeIdentifier: Self.bestTypeIdentifier(for: provider) ?? "public.data"
@@ -67,7 +71,9 @@ final class SharedItemCollector {
     }
 
     /// Copies every accepted attachment into the App Group inbox.
-    func save() async {
+    ///
+    /// - Returns: what to tell the tenant. Nothing is mutated here.
+    func save() async -> Outcome {
         let inbox = SharedEvidenceInbox()
         var savedCount = 0
 
@@ -95,17 +101,16 @@ final class SharedItemCollector {
                     savedCount += 1
                 }
             } catch AppGroupAccessError.containerUnavailable {
-                outcome = .failed(
+                return .failed(
                     reason: "MoveProof can't reach its shared storage on this device, so the file wasn't saved."
                 )
-                return
             } catch {
                 // One bad attachment should not lose the others.
                 continue
             }
         }
 
-        outcome = savedCount > 0
+        return savedCount > 0
             ? .saved(count: savedCount)
             : .failed(reason: "MoveProof couldn't read the file that was shared. Try sharing it again from the app it's stored in.")
     }

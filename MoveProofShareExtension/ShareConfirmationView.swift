@@ -5,16 +5,22 @@ import SwiftUI
 /// Says plainly what will happen — the file goes to MoveProof's inbox, and filing
 /// it against a room happens in the app — so the hand-off does not look like a
 /// finished action when it is really the first half of one.
+///
+/// The view owns the outcome; `SharedItemCollector` is a value type that inspects
+/// the attachments and returns a result rather than holding state of its own.
 struct ShareConfirmationView: View {
 
-    @Bindable var collector: SharedItemCollector
+    let collector: SharedItemCollector
     let onFinish: () -> Void
     let onCancel: () -> Void
+
+    @State private var outcome: SharedItemCollector.Outcome = .preparing
+    @State private var isSaving = false
 
     var body: some View {
         NavigationStack {
             Group {
-                switch collector.outcome {
+                switch outcome {
                 case .preparing:
                     ProgressView("Checking what you shared")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -51,12 +57,13 @@ struct ShareConfirmationView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    if case .ready = collector.outcome {
+                    if case .ready = outcome {
                         Button("Cancel", action: onCancel)
                     }
                 }
             }
         }
+        .task { outcome = collector.initialOutcome }
     }
 
     private func readyState(_ candidates: [SharedItemCollector.Candidate]) -> some View {
@@ -83,8 +90,10 @@ struct ShareConfirmationView: View {
             }
 
             Button {
+                guard !isSaving else { return }
+                isSaving = true
                 Task {
-                    await collector.save()
+                    outcome = await collector.save()
                     onFinish()
                 }
             } label: {
@@ -93,6 +102,7 @@ struct ShareConfirmationView: View {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
+            .disabled(isSaving)
             .padding()
         }
     }

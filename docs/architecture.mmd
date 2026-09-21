@@ -1,0 +1,130 @@
+%% MoveProof — architecture and primary use-case data flow
+%% Rendered with Mermaid. The highlighted path is the shared-evidence journey:
+%% another app -> Share Extension -> App Group inbox -> main app -> Core Data.
+
+flowchart TB
+
+    subgraph human["Tenant (human)"]
+        T["Tenant documenting a rental property"]
+        HS["Home Screen"]
+        OA["Another app<br/>(Photos, Files, Mail)"]
+    end
+
+    subgraph app["MoveProof — main app process"]
+        direction TB
+
+        subgraph views["Views (SwiftUI)"]
+            V1["TenancyDashboardView"]
+            V2["TenancySetupView"]
+            V3["InspectionAreaListView"]
+            V4["InspectionAreaDetailView"]
+            V5["ConditionItemDetailView"]
+            V6["EvidenceLibraryView"]
+            V7["EvidenceDetailView"]
+            V8["SharedEvidenceInboxView"]
+        end
+
+        subgraph vms["ViewModels (@Observable)"]
+            VM1["TenancyDashboardViewModel"]
+            VM2["TenancySetupViewModel"]
+            VM3["InspectionAreaListViewModel"]
+            VM4["InspectionAreaDetailViewModel"]
+            VM5["ConditionItemDetailViewModel"]
+            VM6["EvidenceLibraryViewModel"]
+            VM7["EvidenceDetailViewModel"]
+            VM8["SharedEvidenceInboxViewModel"]
+        end
+
+        subgraph uc["Use Cases (structs — business rules live here)"]
+            U1["StartTenancyInspectionUseCase<br/><i>address required · one walkthrough at a time</i>"]
+            U2["RecordConditionEvidenceUseCase<br/><i>damage needs a note or a photo</i>"]
+            U3["CompleteInspectionAreaUseCase<br/><i>no sign-off while items unreviewed<br/>or damage undocumented</i>"]
+            U4["ImportSharedEvidenceUseCase<br/><i>supported type · idempotent import</i>"]
+            U5["CaptureEvidenceUseCase<br/><i>no cross-property evidence</i>"]
+            U6["ReviewInspectionProgressUseCase<br/><i>status derived · widget data reduced</i>"]
+        end
+
+        subgraph err["Domain errors"]
+            E["TenantFacingError<br/><i>what happened + what to do next</i>"]
+        end
+
+        subgraph repos["Repository protocols"]
+            R1["TenancyRepository"]
+            R2["InspectionRepository"]
+            R3["EvidenceRepository"]
+            R4["EvidenceFileStore"]
+            R5["InspectionSnapshotPublishing"]
+        end
+
+        subgraph impl["Core Data implementations"]
+            I1["CoreDataTenancyRepository"]
+            I2["CoreDataInspectionRepository"]
+            I3["CoreDataEvidenceRepository"]
+            I4["AppGroupEvidenceFileStore"]
+            I5["WidgetSnapshotPublisher"]
+        end
+    end
+
+    subgraph store["Persistence"]
+        CD[("Core Data<br/>TenancyEntity → InspectionAreaEntity<br/>→ ConditionItemEntity → EvidenceItemEntity")]
+    end
+
+    subgraph group["App Group — group.com.krischuang.MoveProof"]
+        G1[/"Evidence/<br/>app-controlled files"/]
+        G2[/"SharedEvidenceInbox/<br/>hand-off from the share sheet"/]
+        G3[/"Widget/snapshot.json<br/>counts, progress, deadline only"/]
+    end
+
+    subgraph share["Share Extension process"]
+        SE["ShareViewController<br/>+ SharedItemCollector<br/><i>no domain logic</i>"]
+    end
+
+    subgraph widget["Widget Extension process"]
+        WP["InspectionProgressProvider"]
+        WV["systemSmall · systemMedium"]
+    end
+
+    %% Human boundary
+    T -->|uses| views
+    HS -->|glances at| WV
+    OA -->|shares a photo or PDF| SE
+
+    %% Main app vertical
+    views --> vms
+    vms --> uc
+    uc -.->|throws| E
+    E -.->|plain-language message| views
+    uc --> repos
+    R1 --> I1
+    R2 --> I2
+    R3 --> I3
+    R4 --> I4
+    R5 --> I5
+
+    I1 --> CD
+    I2 --> CD
+    I3 --> CD
+    I4 --> G1
+    I5 --> G3
+
+    %% Share Extension path
+    SE -->|copies file + metadata| G2
+    G2 -->|drained by| U4
+    U4 -->|adopts file| G1
+    U4 -->|writes metadata| R3
+
+    %% Widget path
+    U6 -->|publishes reduced snapshot| R5
+    I5 -->|reloadTimelines| WP
+    G3 -->|read-only| WP
+    WP --> WV
+
+    classDef human fill:#fff4e6,stroke:#d9822b,color:#000
+    classDef rule fill:#eef7ee,stroke:#3d8b40,color:#000
+    classDef shared fill:#eaf1fb,stroke:#2f6fb5,color:#000
+    classDef ext fill:#f3eafb,stroke:#7a4fb5,color:#000
+
+    class T,HS,OA human
+    class U1,U2,U3,U4,U5,U6 rule
+    class G1,G2,G3 shared
+    class SE,WP,WV ext
