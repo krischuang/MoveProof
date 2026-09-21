@@ -352,10 +352,11 @@ your own judgement reads better than agreeing with the code.
 
 **[AUTHOR TO REVIEW]** — your call. Honest candidates from how the build actually went:
 
-- Verifying the extensions was harder than writing them. Automating the iOS share sheet
-  and the Home Screen widget gallery through UI tests proved unreliable, and I ended up
-  testing the extension's logic directly and confirming the share sheet by hand. I would
-  plan for that from the start rather than discovering it late.
+- Verifying the extensions was harder than writing them. The share-sheet test does pass
+  end to end, but only on a clean simulator, and automating the Home Screen widget
+  gallery never became reliable at all. I ended up testing the extensions' logic directly
+  in the unit target and leaving the widget placement as a manual check. I would plan for
+  that split from the start rather than discovering it late.
 - The `@Observable` class I first wrote for the share extension crashed when released
   from a test. Making it a value type fixed it and produced a simpler design, which
   suggests the class was the wrong shape to begin with.
@@ -404,7 +405,7 @@ is what it is.
 | Widget, 2 families | `MoveProofWidget/`, `supportedFamilies([.systemSmall, .systemMedium])` |
 | Share Extension | `MoveProofShareExtension/` |
 | App Group | `MoveProofShared/AppGroup.swift` |
-| 80 unit tests | `MoveProofTests/` |
+| 82 unit tests | `MoveProofTests/` |
 | Mock repositories | `MoveProofTests/Mocks/MockRepositories.swift` |
 | Git workflow | `git log --graph --oneline` |
 

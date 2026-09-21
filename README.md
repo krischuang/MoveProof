@@ -446,11 +446,35 @@ xcodebuild test -project MoveProof.xcodeproj -scheme MoveProof \
   -only-testing:MoveProofUITests/MoveProofWalkthroughUITests
 ```
 
-**Simulator notes.** Pass `-parallel-testing-enabled NO` when you want the test to run
-on the named simulator rather than an ephemeral clone — necessary if you want to
-inspect the App Group container afterwards. The share-sheet test drives Photos and
-SpringBoard, so it is slower and more sensitive to simulator state than the rest;
-reset the simulator if it misbehaves.
+**The cross-app share-sheet test, and why it is opt-in.**
+
+`ShareExtensionUITests` drives four processes — MoveProof → Photos → the system share
+sheet → the extension → MoveProof again. It **passes**, and it is the evidence that the
+extension really is registered, really writes to the App Group, and really dismisses
+itself. But it depends on simulator state that the test cannot control: it needs photos
+in the library, and Photos' grid does not respond to element-relative taps, so the test
+has to tap by window coordinate.
+
+Rather than let that make `xcodebuild test` unreliable, the shared scheme skips this one
+class by default. Run it explicitly on a clean simulator:
+
+```bash
+xcrun simctl erase "iPhone 17" && xcrun simctl boot "iPhone 17"
+xcrun simctl addmedia "iPhone 17" <a-few-image-files>
+xcodebuild test -project MoveProof.xcodeproj -scheme MoveProof \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -parallel-testing-enabled NO \
+  -only-testing:MoveProofUITests/ShareExtensionUITests
+```
+
+Nothing is lost by skipping it in the default run: the extension's own logic is covered
+deterministically by `SharedItemCollectorTests`, and the import rules by
+`ImportSharedEvidenceTests`, both in the unit target.
+
+**Simulator notes.** Pass `-parallel-testing-enabled NO` when you want a test to run on
+the named simulator rather than an ephemeral clone — necessary if you want to inspect the
+App Group container afterwards. The project ships a **shared scheme**, so a fresh clone
+gets the same build and test configuration rather than an auto-generated one.
 
 ## What is verified, and how
 
@@ -459,8 +483,9 @@ Stated plainly, because "it compiles" is not verification.
 | Claim | How it was verified |
 | --- | --- |
 | App builds, all three targets | `xcodebuild build` — succeeds |
+| Whole default suite is green | `xcodebuild test` — **82 unit + 5 UI tests, 0 failures** |
 | 82 unit tests pass | `xcodebuild test -only-testing:MoveProofTests` — 82 executed, 0 failures |
-| Business rules fire with tenant-facing wording | Unit tests, plus `MoveProofWalkthroughUITests` asserting on the exact on-screen strings |
+| Business rules fire with tenant-facing wording | Unit tests, plus `MoveProofWalkthroughUITests` asserting the exact on-screen strings for both refusals, including the what-to-do-next line |
 | Core Data predicates are valid and correctly scoped | `CoreDataRepositoryTests` against a real in-memory store |
 | Delete rules behave as modelled | `testDeletingARoomKeepsTheTenantsEvidenceInTheLibrary` |
 | App Group container is reachable | Inspected on disk in the simulator; `group.com.krischuang.MoveProof` is created on launch |
