@@ -79,6 +79,9 @@ struct ConditionItemDetailView: View {
                 axis: .vertical
             )
             .lineLimit(3...8)
+            // Stable handle for the UI test; the placeholder text is domain copy and
+            // should be free to change without breaking a test.
+            .accessibilityIdentifier("conditionNotesField")
         }
     }
 

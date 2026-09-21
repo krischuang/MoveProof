@@ -66,16 +66,18 @@ final class MoveProofWalkthroughUITests: XCTestCase {
 
         // MARK: Adding a note satisfies the rule
 
-        let noteField = app.textViews.firstMatch.exists
-            ? app.textViews.firstMatch
-            : app.textFields["Describe the damage — where it is and how bad it looks"]
+        let noteField = app.textFields["conditionNotesField"]
         XCTAssertTrue(noteField.waitForExistence(timeout: 5))
-        // Tap, then wait for the field to actually take focus before typing. Waiting on
-        // `app.keyboards` instead would be wrong: when the simulator has a hardware
-        // keyboard attached there is no software keyboard to wait for, and typing
-        // still works.
+
+        // Showing the inline refusal pushes the form down, leaving the note field
+        // clipped at the top of the scroll view. Tapping a clipped field does not
+        // focus it, and typing into an unfocused field fails, so bring it fully into
+        // view first.
+        XCTAssertTrue(
+            scrollToElement(noteField, in: app),
+            "The note field should be reachable after the rule fires"
+        )
         noteField.tap()
-        waitForKeyboardFocus(on: noteField)
         noteField.typeText("Deep scratch across the vinyl near the oven.")
 
         dismissKeyboard(in: app)
@@ -106,23 +108,6 @@ final class MoveProofWalkthroughUITests: XCTestCase {
             app.staticTexts["This room isn't ready yet"].waitForExistence(timeout: 5),
             "Sign-off must be blocked while required checklist items are unreviewed"
         )
-    }
-
-    /// Waits until the field reports keyboard focus, retapping once if it did not take.
-    ///
-    /// SwiftUI's `TextField` returns from `tap()` before focus is established, and
-    /// typing into an unfocused field fails outright.
-    private func waitForKeyboardFocus(on element: XCUIElement, timeout: TimeInterval = 5) {
-        let deadline = Date().addingTimeInterval(timeout)
-        var retried = false
-        while Date() < deadline {
-            if element.value(forKey: "hasKeyboardFocus") as? Bool == true { return }
-            if !retried, Date() > deadline.addingTimeInterval(-timeout / 2) {
-                element.tap()
-                retried = true
-            }
-            Thread.sleep(forTimeInterval: 0.25)
-        }
     }
 
     /// Puts the keyboard away so it cannot cover the control we are about to tap.
