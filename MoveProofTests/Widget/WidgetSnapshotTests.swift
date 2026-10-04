@@ -8,7 +8,7 @@ import XCTest
 ///
 /// The widget extension and the app are separate processes, so nothing here can run
 /// the widget for real. What it can do is exercise the same store the widget reads,
-/// and render the same views the widget renders — which is where layout mistakes
+/// and render the same views the widget renders, which is where layout mistakes
 /// actually live.
 final class WidgetSnapshotTests: XCTestCase {
 
@@ -41,7 +41,7 @@ final class WidgetSnapshotTests: XCTestCase {
 
         // A fresh store instance, standing in for the widget process.
         let readBack = try XCTUnwrap(InspectionSnapshotStore().read())
-        XCTAssertEqual(readBack, published, "The widget must see exactly what the app published")
+        XCTAssertEqual(readBack, published, "The widget must see what the app wrote")
     }
 
     func testTheSnapshotLivesInItsOwnDirectoryAwayFromEvidenceAndTheInbox() throws {
@@ -121,7 +121,7 @@ final class WidgetSnapshotTests: XCTestCase {
     @MainActor
     func testBothFamiliesSurviveAnOverdueTenancyWithLargeCounts() throws {
         // Long strings and three-digit counts are where a widget layout usually
-        // breaks, so render the worst realistic case rather than only the tidy one.
+        // breaks, so render the worst realistic case, not just the tidy one.
         let stressed = InspectionSnapshot(
             areasTotal: 24,
             areasComplete: 23,

@@ -112,7 +112,7 @@ final class RecordConditionEvidenceTests: XCTestCase {
             let tenantFacing = error as? TenantFacingError
             XCTAssertTrue(
                 tenantFacing?.whatToDoNext.contains("photo or write a short note") == true,
-                "The tenant should be told exactly what will unblock this, in their own vocabulary"
+                "The message should say what will unblock this, in the tenant's words"
             )
         }
 
