@@ -105,22 +105,16 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2AF9891B305CD64A0065A469 /* MoveProof */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = MoveProof;
 			sourceTree = "<group>";
 		};
 		2AF9892E305CD64E0065A469 /* MoveProofTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = MoveProofTests;
 			sourceTree = "<group>";
 		};
 		2AF98938305CD64E0065A469 /* MoveProofUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = MoveProofUITests;
 			sourceTree = "<group>";
 		};
@@ -177,7 +171,6 @@
 				F7DED35E17D86F7FF15B6887 /* Info.plist */,
 				5573B0F4B994B971B8E883E9 /* MoveProofShareExtension.entitlements */,
 			);
-			name = MoveProofShareExtension;
 			path = MoveProofShareExtension;
 			sourceTree = "<group>";
 		};
@@ -190,7 +183,6 @@
 				42E520DCE4A1CF3CFAE62861 /* Info.plist */,
 				85B55E9EC40D22C7BC4EE829 /* MoveProofWidget.entitlements */,
 			);
-			name = MoveProofWidget;
 			path = MoveProofWidget;
 			sourceTree = "<group>";
 		};
@@ -247,7 +239,6 @@
 				2663256D42668848C8436F85 /* InspectionWidgetViews.swift */,
 				97D34CBE0554704081986BF3 /* SharedItemCollector.swift */,
 			);
-			name = MoveProofShared;
 			path = MoveProofShared;
 			sourceTree = "<group>";
 		};
@@ -644,6 +635,7 @@
 				CODE_SIGN_ENTITLEMENTS = MoveProof/MoveProof.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V6V6VZ2F4Z;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -676,6 +668,7 @@
 				CODE_SIGN_ENTITLEMENTS = MoveProof/MoveProof.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V6V6VZ2F4Z;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -788,6 +781,7 @@
 				CODE_SIGN_ENTITLEMENTS = MoveProofWidget/MoveProofWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V6V6VZ2F4Z;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MoveProofWidget/Info.plist;
@@ -820,6 +814,7 @@
 				CODE_SIGN_ENTITLEMENTS = MoveProofShareExtension/MoveProofShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V6V6VZ2F4Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MoveProofShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MoveProof;
@@ -851,6 +846,7 @@
 				CODE_SIGN_ENTITLEMENTS = MoveProofWidget/MoveProofWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V6V6VZ2F4Z;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MoveProofWidget/Info.plist;
@@ -882,6 +878,7 @@
 				CODE_SIGN_ENTITLEMENTS = MoveProofShareExtension/MoveProofShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V6V6VZ2F4Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MoveProofShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MoveProof;
