@@ -96,6 +96,24 @@ struct ReviewInspectionProgressUseCase {
         snapshotPublisher.publish(.noActiveTenancy)
     }
 
+    /// Recalculates the summary and writes it out for the widget again.
+    ///
+    /// This is the one refresh call the app makes after a successful save, so the
+    /// widget reload is not spread across every use case where it could be missed
+    /// from one of them. It swallows its errors on purpose: the tenant's save has
+    /// already worked, and a Home Screen summary that is one edit behind is not
+    /// worth an alert. The widget keeps the old snapshot until the next good write.
+    func refreshPublishedSnapshot(now: Date = Date(), calendar: Calendar = .current) {
+        do {
+            _ = try execute(now: now, calendar: calendar)
+        } catch is InspectionReviewError {
+            // Nothing left to summarise, e.g. the tenancy was just archived.
+            publishEmptySnapshot()
+        } catch {
+            AppLog.inspection.error("Could not refresh the widget snapshot after a change: \(error)")
+        }
+    }
+
     private func areasContaining(
         _ items: [ConditionItem],
         among areas: [InspectionArea]
