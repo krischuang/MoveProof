@@ -3,9 +3,9 @@ import UIKit
 
 /// Entry point for the MoveProof share extension.
 ///
-/// Hosts the confirmation view, then completes the extension request. The two exit
-/// paths both end in `completeRequest` or `cancelRequest`, which is what stops the
-/// share sheet hanging around after the tenant is finished.
+/// Hosts the confirmation view, then completes the extension request. Both exit
+/// paths end in `completeRequest`, which is what stops the share sheet hanging around
+/// after the tenant is done.
 final class ShareViewController: UIViewController {
 
     override func viewDidLoad() {
@@ -36,17 +36,17 @@ final class ShareViewController: UIViewController {
         hosting.didMove(toParent: self)
     }
 
-    /// Leaves the confirmation on screen briefly so the tenant sees that the file
-    /// was accepted, rather than the sheet vanishing with no feedback.
+    /// Leaves the confirmation up for a moment so the tenant sees the file was
+    /// accepted, instead of the sheet just vanishing.
     private func showResultThenFinish() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) { [weak self] in
             self?.finish()
         }
     }
 
-    /// Dismisses the share sheet. Uses `completeRequest` in every case: nothing here
-    /// failed from the host app's point of view, and the tenant has already been
-    /// told in-sheet if a file could not be read.
+    /// Dismisses the share sheet. Always uses `completeRequest`, because nothing
+    /// failed as far as the host app is concerned, and the tenant has already been
+    /// told in the sheet if a file could not be read.
     private func finish() {
         extensionContext?.completeRequest(returningItems: nil)
     }

@@ -15,8 +15,8 @@ struct InspectionStore {
     /// The managed object model, loaded exactly once for the whole process.
     ///
     /// `NSPersistentContainer(name:)` loads a fresh copy of the model every time it
-    /// is called. With two containers alive — the app's real store and a test's
-    /// in-memory one — Core Data then sees two `NSEntityDescription`s claiming the
+    /// is called. With two containers alive (the app's real store and a test's
+    /// in-memory one) Core Data then sees two `NSEntityDescription`s claiming the
     /// same `NSManagedObject` subclass, and `+[Entity entity]` can no longer tell
     /// them apart. Sharing one model instance removes the ambiguity.
     private static let managedObjectModel: NSManagedObjectModel = {
@@ -48,7 +48,7 @@ struct InspectionStore {
         if let loadError {
             // The store is the app's only record of the tenant's evidence. If it
             // cannot be opened there is no safe degraded mode to continue in, so
-            // fail loudly here rather than silently losing writes later.
+            // fail loudly here instead of quietly losing writes later.
             fatalError("MoveProof could not open its evidence store: \(loadError)")
         }
 

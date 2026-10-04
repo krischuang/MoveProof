@@ -3,9 +3,9 @@ import XCTest
 /// Drives the real iOS share sheet to prove the MoveProof Share Extension is
 /// registered, runs, writes into the App Group inbox and dismisses itself.
 ///
-/// This test crosses process boundaries — Photos, the share sheet, the extension,
-/// then MoveProof — which is the only way to show the hand-off genuinely works
-/// rather than that the code compiles.
+/// This test crosses process boundaries (Photos, the share sheet, the extension,
+/// then MoveProof), which is the only way to show the hand-off really works and
+/// not just that the code compiles.
 final class ShareExtensionUITests: XCTestCase {
 
     private let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
@@ -58,7 +58,7 @@ final class ShareExtensionUITests: XCTestCase {
 
         // MARK: Share a photo from Photos into MoveProof
 
-        // Terminate first so Photos starts on the grid rather than wherever a
+        // Terminate first so Photos starts on the grid instead of wherever a
         // previous test in the same run left it.
         let photos = XCUIApplication(bundleIdentifier: "com.apple.mobileslideshow")
         photos.terminate()
@@ -67,7 +67,7 @@ final class ShareExtensionUITests: XCTestCase {
 
         dismissAnyOnboarding(in: photos)
 
-        // Make sure we are on the Library grid rather than Collections.
+        // Make sure we are on the Library grid, not Collections.
         let libraryTab = photos.buttons["Library"].firstMatch
         if libraryTab.waitForExistence(timeout: 5) {
             libraryTab.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
@@ -83,7 +83,7 @@ final class ShareExtensionUITests: XCTestCase {
         // Photos' grid uses a zoomable layout whose cells do not respond to
         // element-relative taps, so open a photo by tapping the window where a
         // thumbnail sits. Which row that is depends on how the grid is scrolled, so
-        // try a few positions rather than depending on one magic coordinate.
+        // try a few positions instead of relying on one magic coordinate.
         let shareButton = photos.buttons["Share"].firstMatch
         let candidates: [CGVector] = [
             CGVector(dx: 0.16, dy: 0.22),
@@ -99,7 +99,7 @@ final class ShareExtensionUITests: XCTestCase {
                 openedAPhoto = true
                 break
             }
-            // Not a photo — go back to the grid and try elsewhere.
+            // Not a photo, so go back to the grid and try elsewhere.
             if photos.buttons["Back"].firstMatch.exists {
                 photos.buttons["Back"].firstMatch.tap()
                 settle()
@@ -117,7 +117,7 @@ final class ShareExtensionUITests: XCTestCase {
         // MARK: MoveProof must be offered in the share sheet
 
         // UIActivityViewController is presented inside the host app's process, so the
-        // sheet and everything in it is queried through Photos rather than SpringBoard.
+        // sheet and everything in it is queried through Photos, not SpringBoard.
         let moveProofActivity = photos.staticTexts["MoveProof"].firstMatch
 
         // The sheet populates its app row asynchronously, and MoveProof may sit past

@@ -24,7 +24,7 @@ struct CoreDataEvidenceRepository: EvidenceRepository {
         )
     }
 
-    /// Evidence filed against the property but not yet pinned to a checklist item —
+    /// Evidence filed against the property but not yet pinned to a checklist item:
     /// the "needs filing" pile the evidence library surfaces.
     func fetchUnassignedEvidence(forTenancy tenancyID: UUID) throws -> [EvidenceItem] {
         try fetch(
@@ -56,7 +56,7 @@ struct CoreDataEvidenceRepository: EvidenceRepository {
         let request = EvidenceItemEntity.fetchRequest()
         request.predicate = NSPredicate(format: "conditionItem.id == %@", conditionItemID as CVarArg)
         do {
-            // `count(for:)` keeps the objects out of memory — the UI only needs the number.
+            // `count(for:)` keeps the objects out of memory; the UI only needs the number.
             return try context.count(for: request)
         } catch {
             throw RepositoryError.fetchFailed(underlying: error)

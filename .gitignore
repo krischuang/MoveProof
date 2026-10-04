@@ -1,14 +1,14 @@
 # macOS
 .DS_Store
 
-# Xcode — user-specific state
+# Xcode: user-specific state
 xcuserdata/
 *.xcuserstate
 *.xcscmblueprint
 *.xccheckout
 *.moved-aside
 
-# Xcode — build output
+# Xcode: build output
 build/
 DerivedData/
 *.hmap
@@ -30,7 +30,7 @@ Carthage/Build/
 timeline.xctimeline
 playground.xcworkspace
 
-# Provisioning / signing secrets — never commit
+# Provisioning and signing secrets (never commit)
 *.mobileprovision
 *.p12
 *.cer

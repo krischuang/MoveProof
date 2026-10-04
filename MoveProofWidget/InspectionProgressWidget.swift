@@ -3,15 +3,15 @@ import WidgetKit
 
 /// The MoveProof Home Screen widget.
 ///
-/// ## What it deliberately does not show
+/// ## What it does not show
 ///
-/// A Home Screen widget is visible to anyone who can see the device — over a
-/// shoulder on a train, or to a flatmate who picks the phone up. The useful-looking
-/// content here would be the property address, the damage descriptions and the
-/// photographs, and all three are exactly the things a tenant would not want on a
-/// lock screen. So the widget carries only counts, progress and the reporting
-/// deadline: enough to answer "am I on track and how long have I got", and not
-/// enough to tell a stranger where the tenant lives or what is wrong with the place.
+/// A Home Screen widget is visible to anyone who can see the device, over a shoulder
+/// on a train or to a flatmate who picks the phone up. The content that would look
+/// most useful here is the property address, the damage descriptions and the photos,
+/// and those are the three things a tenant would least want on a lock screen. So the
+/// widget carries only counts, progress and the due date. That is enough to answer
+/// "am I on track and how long have I got", and not enough to tell a stranger where
+/// the tenant lives or what is wrong with the place.
 struct InspectionProgressWidget: Widget {
 
     /// Must match `WidgetSnapshotPublisher.widgetKind` in the main app, which is

@@ -4,7 +4,7 @@ import CoreData
 ///
 /// Keeping the mapping in one place is what lets the domain stay free of Core Data:
 /// enums are stored as their raw strings here and nowhere else, and an unrecognised
-/// raw value degrades to a safe default rather than crashing a tenant's walkthrough.
+/// raw value falls back to a safe default instead of crashing mid-walkthrough.
 enum ManagedObjectMapping {
 
     // MARK: - Tenancy

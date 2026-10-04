@@ -2,16 +2,15 @@ import WidgetKit
 
 /// Supplies the widget with the summary the main app published into the App Group.
 ///
-/// The provider never touches Core Data. It reads one small JSON file, which is why
-/// the widget can render in the tight time and memory budget WidgetKit allows, and
-/// why the widget process needs no knowledge of the app's persistence at all.
+/// The provider never touches Core Data. It reads one small JSON file, which is how
+/// the widget stays inside WidgetKit's tight time and memory budget, and why the
+/// widget process needs to know nothing about the app's storage.
 struct InspectionProgressProvider: TimelineProvider {
 
     private let store = InspectionSnapshotStore()
 
-    /// Shown in the widget gallery and while the real snapshot loads. Plausible
-    /// sample numbers, so the gallery preview looks like a real walkthrough rather
-    /// than a row of zeroes.
+    /// Shown in the widget gallery and while the real snapshot loads. Uses sample
+    /// numbers so the preview looks like a real walkthrough, not a row of zeroes.
     func placeholder(in context: Context) -> InspectionProgressEntry {
         InspectionProgressEntry(date: Date(), snapshot: .sample)
     }
@@ -25,9 +24,9 @@ struct InspectionProgressProvider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<InspectionProgressEntry>) -> Void) {
         let entry = InspectionProgressEntry(date: Date(), snapshot: currentSnapshot())
 
-        // The app reloads the timeline whenever the tenant records something, so the
-        // only thing this schedule has to handle is the day rolling over and the
-        // countdown changing. Refreshing at the next midnight is enough.
+        // The app reloads the timeline whenever something is recorded, so all this
+        // schedule has to handle is the date changing and the countdown ticking
+        // down. Refreshing just after midnight is enough.
         let nextMidnight = Calendar.current.nextDate(
             after: Date(),
             matching: DateComponents(hour: 0, minute: 1),
@@ -37,8 +36,8 @@ struct InspectionProgressProvider: TimelineProvider {
         completion(Timeline(entries: [entry], policy: .after(nextMidnight)))
     }
 
-    /// Reads the published summary, falling back to the "nothing set up yet" state
-    /// when the app has never run or the container cannot be reached.
+    /// Reads the written summary, falling back to the "nothing set up yet" state if
+    /// the app has never run or the container cannot be reached.
     private func currentSnapshot() -> InspectionSnapshot {
         store.read() ?? .noActiveTenancy
     }

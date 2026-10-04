@@ -1,14 +1,12 @@
 import Foundation
 
-/// A deliberately small, privacy-reduced summary of the current inspection,
-/// published by the main app into the App Group so the widget can render without
-/// ever touching Core Data.
+/// A small, cut-down summary of the current inspection. The main app writes it into
+/// the App Group so the widget can draw without touching Core Data.
 ///
-/// Privacy note: the snapshot intentionally carries **no property address, no
-/// photographs and no damage descriptions**. A Home Screen widget is visible to
-/// anyone who can see the device, so only counts, progress and the reporting
-/// deadline are exposed. Detailed evidence stays inside the app behind the
-/// device passcode.
+/// Privacy note: the snapshot carries **no property address, no photographs and no
+/// damage descriptions**. A Home Screen widget is visible to anyone who can see the
+/// device, so only counts, progress and the due date go in it. The detail stays
+/// inside the app behind the passcode.
 struct InspectionSnapshot: Codable, Equatable, Sendable {
 
     /// Total number of inspection areas in the active tenancy.
@@ -49,8 +47,8 @@ struct InspectionSnapshot: Codable, Equatable, Sendable {
 
 /// Reads and writes `InspectionSnapshot` at a fixed location in the App Group.
 ///
-/// The main app is the only writer; the widget is a read-only consumer. This keeps
-/// the widget decoupled from the Core Data stack entirely.
+/// The main app is the only writer and the widget only reads. That keeps the widget
+/// away from the Core Data stack completely.
 struct InspectionSnapshotStore {
 
     private let fileName = "snapshot.json"
@@ -68,9 +66,9 @@ struct InspectionSnapshotStore {
         try data.write(to: try snapshotURL(), options: .atomic)
     }
 
-    /// Returns the published snapshot, or `nil` when the main app has never run
-    /// or the container is unavailable. Callers render a first-run state instead
-    /// of treating this as an error.
+    /// Returns the written snapshot, or `nil` if the main app has never run or the
+    /// container cannot be reached. Callers show a first-run state instead of
+    /// treating it as an error.
     func read() -> InspectionSnapshot? {
         guard let url = try? snapshotURL(),
               let data = try? Data(contentsOf: url) else { return nil }

@@ -1,21 +1,21 @@
 import Foundation
 
-/// Brings a file the tenant shared from another app into MoveProof's own evidence
-/// store, under domain rules the Share Extension is deliberately not trusted with.
+/// Brings a file shared from another app into MoveProof's own evidence store. The
+/// Share Extension is not trusted with any of these rules.
 ///
 /// ## Rules enforced
 /// 1. There must be a tenancy to file the evidence against.
-/// 2. The content type must be something MoveProof can hold as evidence — a photo
-///    or a PDF. A shared video or web link is refused with an explanation.
-/// 3. The shared file must still exist. Items can sit in the inbox for days, and
-///    the host app may have removed the original.
-/// 4. **Importing is idempotent.** An inbox record that has already produced
-///    evidence is refused rather than filed twice, so tapping Import again cannot
-///    create duplicates.
+/// 2. The content type must be something the app can use as evidence, so a photo or
+///    a PDF. A shared video or web link is refused with an explanation.
+/// 3. The shared file must still be there. Items can sit in the inbox for days and
+///    the original may have been deleted in the meantime.
+/// 4. **Importing is idempotent.** An inbox item that has already been imported is
+///    refused instead of filed twice, so tapping Import again cannot create a
+///    duplicate.
 ///
-/// The Share Extension runs under tight memory limits and has no business
-/// duplicating any of this. It captures the file and its provenance; every domain
-/// decision happens here, in the main app.
+/// The Share Extension runs under tight memory limits, so it should not be repeating
+/// any of this. It captures the file and where it came from, and every decision is
+/// made here in the main app.
 struct ImportSharedEvidenceUseCase {
 
     let tenancyRepository: TenancyRepository
@@ -55,15 +55,15 @@ struct ImportSharedEvidenceUseCase {
             throw SharedEvidenceImportError.noActiveTenancy
         }
 
-        // Rule 2: the extension records the UTI it was handed; classification
-        // into a domain evidence kind happens here.
+        // Rule 2: the extension just records the UTI it was given. Working out
+        // what kind of evidence that is happens here.
         guard let kind = EvidenceKind.forContentType(item.contentTypeIdentifier) else {
             throw SharedEvidenceImportError.unsupportedSharedContent(
                 contentTypeIdentifier: item.contentTypeIdentifier
             )
         }
 
-        // Rule 4: check before doing any work, so a repeated tap is cheap and safe.
+        // Rule 4: check first, so a second tap is cheap and safe.
         if try evidenceRepository.fetchEvidence(importedFromInboxItem: item.id) != nil {
             throw SharedEvidenceImportError.duplicateEvidence(displayName: item.originalFileName)
         }
@@ -74,8 +74,8 @@ struct ImportSharedEvidenceUseCase {
             throw SharedEvidenceImportError.sharedItemUnavailable(displayName: item.originalFileName)
         }
 
-        // Take ownership of the bytes before recording metadata, so a failed copy
-        // cannot leave the store pointing at a file that was never written.
+        // Copy the file before writing the database row, so a failed copy cannot
+        // leave the store pointing at a file that was never written.
         let storedFileName: String
         do {
             storedFileName = try evidenceFileStore.adopt(
@@ -102,17 +102,17 @@ struct ImportSharedEvidenceUseCase {
         do {
             try evidenceRepository.save(evidence)
         } catch {
-            // Roll the file back so a failed save does not orphan bytes on disk.
+            // Delete the copy so a failed save does not leave it orphaned.
             try? evidenceFileStore.removeFile(named: storedFileName)
             throw error
         }
 
-        // Only now is it safe to drain the inbox: the evidence is committed, so the
-        // hand-off is genuinely finished rather than merely attempted.
+        // Only now is it safe to clear the inbox. The evidence is saved, so the
+        // hand-off is finished rather than just attempted.
         do {
             try inbox.remove(item)
         } catch {
-            // A file left in the inbox is harmless — rule 4 stops it importing twice.
+            // A file left in the inbox is harmless. Rule 4 stops it importing twice.
             AppLog.sharedInbox.error("Imported inbox item \(item.id) but could not clear the inbox: \(error)")
         }
 

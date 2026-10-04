@@ -1,7 +1,7 @@
 import XCTest
 @testable import MoveProof
 
-/// Rules covered: progress is derived rather than stored, report-ready status
+/// Rules covered: progress is worked out rather than stored, report-ready status
 /// follows the evidence, and the widget only ever receives reduced data.
 final class ReviewInspectionProgressTests: XCTestCase {
 

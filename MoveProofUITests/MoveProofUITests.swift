@@ -2,11 +2,11 @@ import XCTest
 
 /// End-to-end smoke test of the walkthrough a tenant performs.
 ///
-/// One long journey rather than several short tests, because the point is to prove
-/// the screens connect to each other and to the real Core Data stack — something a
+/// One long journey instead of several short tests, because the point is to show
+/// the screens connect to each other and to the real Core Data stack, something a
 /// set of isolated screen tests would not show.
 ///
-/// ## What this covers, and what it deliberately does not
+/// ## What this covers, and what it does not
 ///
 /// It covers navigation and the two places a domain rule has to reach the screen:
 /// refusing undocumented damage, and refusing sign-off while the room is not ready.
@@ -15,8 +15,8 @@ import XCTest
 ///
 /// It does **not** drive the note field or the photo picker. Typing into a multiline
 /// SwiftUI `TextField(axis: .vertical)` and then reaching a button underneath the
-/// keyboard proved unreliable in XCUITest — the field reports a degenerate frame and
-/// the button below it never becomes hittable. That is harness friction rather than
+/// keyboard proved unreliable in XCUITest: the field reports a degenerate frame and
+/// the button below it never becomes hittable. That is a test harness problem, not
 /// app behaviour, and the rules it would have exercised (damage plus a note is
 /// accepted; sign-off succeeds once every item is reviewed) are covered
 /// deterministically in `RecordConditionEvidenceTests` and
@@ -62,7 +62,7 @@ final class MoveProofWalkthroughUITests: XCTestCase {
         )
         kitchen.tap()
 
-        // MARK: Rule — damage with nothing to back it up is refused, in the tenant's words
+        // MARK: Rule: damage with nothing to back it up is refused, in the tenant's words
 
         let flooring = app.buttons.containing(NSPredicate(format: "label CONTAINS 'Flooring'")).firstMatch
         XCTAssertTrue(flooring.waitForExistence(timeout: 10))
@@ -85,7 +85,7 @@ final class MoveProofWalkthroughUITests: XCTestCase {
             "The refusal must tell the tenant what to do next, not just that it failed"
         )
 
-        // MARK: Rule — a room cannot be signed off while items are unreviewed
+        // MARK: Rule: a room cannot be signed off while items are unreviewed
 
         app.navigationBars.buttons.firstMatch.tap()   // back to the room
         XCTAssertTrue(
