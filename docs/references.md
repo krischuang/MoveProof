@@ -6,13 +6,13 @@ not read, and no claim is attributed to a source beyond what the source says.
 MoveProof is an evidence capture and organisation tool. It does not give legal
 advice and does not determine who is responsible for any damage. The sources below
 are used to establish that the documentation problem exists and to justify specific
-product decisions — most importantly the seven-day default deadline.
+product decisions, most importantly the seven-day default deadline.
 
 ---
 
 ## Real-world evidence that the problem exists
 
-### 1. Rental property condition reports — NSW Government
+### 1. Rental property condition reports (NSW Government)
 
 - **Title:** Rental property condition reports
 - **Organisation:** NSW Government (Housing and Construction)
@@ -36,14 +36,14 @@ product decisions — most importantly the seven-day default deadline.
 **Where it is used in MoveProof:**
 
 - `Tenancy.conditionReportWindowInDays = 7` and
-  `Tenancy.defaultConditionReportDueDate(movingIn:)` — the seven-day default the app
+  `Tenancy.defaultConditionReportDueDate(movingIn:)`, the seven-day default the app
   proposes, which the tenant can override.
 - The deadline countdown on the dashboard and on both widget families.
 - `TenancySetupViewModel.dueDateFootnote`, which explains the default to the tenant.
 
 ---
 
-### 2. Starting a tenancy — Tenants' Union of NSW
+### 2. Starting a tenancy (Tenants' Union of NSW)
 
 - **Title:** Factsheet 02: Starting a tenancy
 - **Organisation:** Tenants' Union of NSW
@@ -76,11 +76,11 @@ sample code was copied verbatim; the APIs below were used as documented.
 
 | Topic | Where it was used |
 | --- | --- |
-| `WidgetKit` — `TimelineProvider`, `StaticConfiguration`, `supportedFamilies`, `WidgetCenter.reloadTimelines(ofKind:)` | `MoveProofWidget/`, `WidgetSnapshotPublisher.swift` |
-| Share extensions — `NSExtensionActivationRule`, `NSItemProvider`, `NSExtensionContext.completeRequest(returningItems:)` | `MoveProofShareExtension/` |
-| App Groups — `FileManager.containerURL(forSecurityApplicationGroupIdentifier:)` | `MoveProofShared/AppGroup.swift` |
-| Core Data — `NSPersistentContainer`, `NSPredicate` including aggregate (`@count`) and keypath traversal, relationship delete rules | `MoveProof/Data/` |
-| SwiftUI — `@Observable`, `NavigationStack`, `ContentUnavailableView`, `PhotosPicker`, `ImageRenderer` | `MoveProof/Features/`, `MoveProofTests/Widget/` |
+| `WidgetKit`: `TimelineProvider`, `StaticConfiguration`, `supportedFamilies`, `WidgetCenter.reloadTimelines(ofKind:)` | `MoveProofWidget/`, `WidgetSnapshotPublisher.swift` |
+| Share extensions: `NSExtensionActivationRule`, `NSItemProvider`, `NSExtensionContext.completeRequest(returningItems:)` | `MoveProofShareExtension/` |
+| App Groups: `FileManager.containerURL(forSecurityApplicationGroupIdentifier:)` | `MoveProofShared/AppGroup.swift` |
+| Core Data: `NSPersistentContainer`, `NSPredicate` including aggregate (`@count`) and keypath traversal, relationship delete rules | `MoveProof/Data/` |
+| SwiftUI: `@Observable`, `NavigationStack`, `ContentUnavailableView`, `PhotosPicker`, `ImageRenderer` | `MoveProof/Features/`, `MoveProofTests/Widget/` |
 
 ## Third-party dependencies
 
