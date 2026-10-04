@@ -9,10 +9,15 @@ enum TenancySetupError: TenantFacingError, Equatable {
     case moveInDateTooFarInPast(days: Int)
     case conditionReportDueBeforeMoveIn
     case inspectionAlreadyStarted(existingAddress: String)
+    /// Raised by `UpdateTenancyDetailsUseCase` when the tenancy being corrected is
+    /// no longer the one MoveProof is documenting, e.g. it was archived on another
+    /// screen while this form was open.
+    case tenancyNoLongerBeingDocumented
 
     var title: String {
         switch self {
         case .inspectionAlreadyStarted: "You're already documenting a property"
+        case .tenancyNoLongerBeingDocumented: "This property isn't open any more"
         default: "Check these details"
         }
     }
@@ -27,6 +32,8 @@ enum TenancySetupError: TenantFacingError, Equatable {
             "The condition report due date is earlier than the move-in date."
         case .inspectionAlreadyStarted(let existingAddress):
             "You're already documenting \(existingAddress)."
+        case .tenancyNoLongerBeingDocumented:
+            "The property you were editing is no longer the one MoveProof is documenting."
         }
     }
 
@@ -40,11 +47,13 @@ enum TenancySetupError: TenantFacingError, Equatable {
             "Set the due date on or after the day you move in. MoveProof suggests seven days after move-in."
         case .inspectionAlreadyStarted:
             "Finish or archive that walkthrough before starting a new property."
+        case .tenancyNoLongerBeingDocumented:
+            "Close this form and open your property details again from the Walkthrough tab."
         }
     }
 
-    /// A move-in date more than this far in the past is almost certainly a typo
-    /// rather than a real tenancy start, so MoveProof asks the tenant to confirm.
+    /// A move-in date more than this far in the past is more likely a typo than a real
+    /// tenancy start, so MoveProof asks the tenant to confirm.
     static let maximumBackdatedMoveInDays = 90
 }
 
@@ -88,7 +97,7 @@ enum ConditionRecordingError: TenantFacingError, Equatable {
         case .damagedConditionNeedsSupportingDetail:
             "Add a photo or write a short note describing the damage, so you can identify it again at the end of the tenancy."
         case .conditionStateNotChosen:
-            "Pick the condition you found — undamaged, minor wear, damaged or not working."
+            "Pick the condition you found: undamaged, minor wear, damaged or not working."
         case .evidenceBelongsToAnotherTenancy:
             "Open the evidence library for this property and pick a file filed against it."
         }
@@ -169,7 +178,7 @@ enum SharedEvidenceImportError: TenantFacingError, Equatable {
         case .unsupportedSharedContent(let contentTypeIdentifier):
             "MoveProof can file photos and PDFs. This item is a \(Self.readableType(contentTypeIdentifier))."
         case .sharedItemUnavailable(let displayName):
-            "\"\(displayName)\" is no longer available — the file may have been removed since it was shared."
+            "\"\(displayName)\" is no longer available. The file may have been removed since it was shared."
         case .duplicateEvidence(let displayName):
             "\"\(displayName)\" has already been filed against this property."
         case .inboxUnavailable:
@@ -186,7 +195,7 @@ enum SharedEvidenceImportError: TenantFacingError, Equatable {
         case .sharedItemUnavailable:
             "Remove it from the inbox and share the file to MoveProof again."
         case .duplicateEvidence:
-            "You can safely remove this copy from the inbox — the original is in your evidence library."
+            "You can safely remove this copy from the inbox. The original is in your evidence library."
         case .inboxUnavailable:
             "Close and reopen MoveProof. If the inbox stays empty, share the file again."
         }
@@ -202,6 +211,152 @@ enum SharedEvidenceImportError: TenantFacingError, Equatable {
             return "link or piece of text"
         }
         return "file type MoveProof doesn't handle"
+    }
+}
+
+// MARK: - Editing the rooms in a walkthrough
+
+/// Rules enforced by `AddInspectionAreaUseCase`, `RenameInspectionAreaUseCase`,
+/// `RemoveInspectionAreaUseCase` and `ReopenInspectionAreaUseCase`.
+///
+/// The four use cases share one error type because they are four edits to the same
+/// thing, the list of rooms in the walkthrough, and a tenant reads them in the same
+/// place on the same screens.
+enum InspectionAreaEditError: TenantFacingError, Equatable {
+
+    case noActiveTenancy
+    case inspectionAreaNotFound
+    case roomNameMissing
+    case duplicateRoomName(name: String)
+    case roomNotSignedOff(roomName: String)
+
+    var title: String {
+        switch self {
+        case .noActiveTenancy: "No property to add rooms to"
+        case .duplicateRoomName: "You already have a room with that name"
+        default: "Can't change this room"
+        }
+    }
+
+    var whatHappened: String {
+        switch self {
+        case .noActiveTenancy:
+            "There's no property set up in MoveProof yet, so there's no walkthrough to add a room to."
+        case .inspectionAreaNotFound:
+            "That room is no longer part of this walkthrough."
+        case .roomNameMissing:
+            "A room needs a name before MoveProof can add it to your walkthrough."
+        case .duplicateRoomName(let name):
+            "This walkthrough already has a room called \"\(name)\"."
+        case .roomNotSignedOff(let roomName):
+            "\"\(roomName)\" hasn't been signed off, so there's nothing to reopen."
+        }
+    }
+
+    var whatToDoNext: String {
+        switch self {
+        case .noActiveTenancy:
+            "Add the property you've moved into on the Walkthrough tab first."
+        case .inspectionAreaNotFound:
+            "Go back to the room list to see the rooms in this walkthrough."
+        case .roomNameMissing:
+            "Give the room the name you'd use when describing it to your agent, such as \"Study\" or \"Garage\"."
+        case .duplicateRoomName:
+            "Give this one a name that tells them apart, such as \"Second bathroom\", so your evidence stays easy to match to the right room."
+        case .roomNotSignedOff:
+            "You can keep recording in it as it is."
+        }
+    }
+}
+
+// MARK: - Capturing evidence inside the app
+
+/// Rules enforced by `CaptureEvidenceUseCase`.
+///
+/// Deliberately separate from `SharedEvidenceImportError`: a photo the tenant picks
+/// inside MoveProof fails for different reasons than a file another app hands over,
+/// and telling someone their own camera roll photo "may have been removed since it
+/// was shared" would be nonsense. Infrastructure faults underneath, such as a full
+/// disk, are mapped onto `couldNotStorePhoto` here rather than leaking to the screen.
+enum EvidenceCaptureError: TenantFacingError, Equatable {
+
+    case noActiveTenancy
+    case emptyPhoto(displayName: String)
+    case conditionItemNoLongerInWalkthrough
+    case evidenceBelongsToAnotherProperty
+    case couldNotStorePhoto(displayName: String)
+
+    var title: String {
+        switch self {
+        case .noActiveTenancy: "No property to file this against"
+        case .couldNotStorePhoto: "Couldn't keep that photo"
+        default: "Couldn't add that photo"
+        }
+    }
+
+    var whatHappened: String {
+        switch self {
+        case .noActiveTenancy:
+            "There's no property set up in MoveProof yet, so there's nowhere to file this photo."
+        case .emptyPhoto(let displayName):
+            "\"\(displayName)\" came through empty, so there's no image to keep as evidence."
+        case .conditionItemNoLongerInWalkthrough:
+            "The checklist item you're adding this photo to is no longer part of this walkthrough."
+        case .evidenceBelongsToAnotherProperty:
+            "That checklist item belongs to a different property."
+        case .couldNotStorePhoto(let displayName):
+            "MoveProof couldn't save \"\(displayName)\" into your evidence, so it hasn't been recorded."
+        }
+    }
+
+    var whatToDoNext: String {
+        switch self {
+        case .noActiveTenancy:
+            "Add the property you've moved into on the Walkthrough tab, then add this photo again."
+        case .emptyPhoto:
+            "Pick the photo again, or take a new one of what you want to record."
+        case .conditionItemNoLongerInWalkthrough:
+            "Go back to the room and open the item again. Your photo hasn't been lost from your camera roll."
+        case .evidenceBelongsToAnotherProperty:
+            "Open the room list for this property and pick a checklist item from it."
+        case .couldNotStorePhoto:
+            "Check there's free space on your device, then add the photo again."
+        }
+    }
+}
+
+// MARK: - Managing evidence already in the library
+
+/// Rules enforced by `FileEvidenceUseCase` and `DiscardEvidenceUseCase`: the two
+/// things a tenant does with evidence after it is already in MoveProof.
+enum EvidenceFilingError: TenantFacingError, Equatable {
+
+    case evidenceNoLongerInLibrary
+    case conditionItemNoLongerInWalkthrough
+    case conditionItemBelongsToAnotherProperty
+
+    var title: String { "Couldn't file this evidence" }
+
+    var whatHappened: String {
+        switch self {
+        case .evidenceNoLongerInLibrary:
+            "This photo or document is no longer in your evidence library."
+        case .conditionItemNoLongerInWalkthrough:
+            "The checklist item you picked is no longer part of this walkthrough."
+        case .conditionItemBelongsToAnotherProperty:
+            "The checklist item you picked belongs to a different property."
+        }
+    }
+
+    var whatToDoNext: String {
+        switch self {
+        case .evidenceNoLongerInLibrary:
+            "Go back to your evidence library to see what's still filed against this property."
+        case .conditionItemNoLongerInWalkthrough:
+            "Go back and pick a checklist item from the current room list."
+        case .conditionItemBelongsToAnotherProperty:
+            "Pick a checklist item from the property this evidence was filed against."
+        }
     }
 }
 
