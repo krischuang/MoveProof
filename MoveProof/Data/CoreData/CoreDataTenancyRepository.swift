@@ -30,16 +30,6 @@ struct CoreDataTenancyRepository: TenancyRepository {
         }
     }
 
-    func fetchAllTenancies() throws -> [Tenancy] {
-        let request = TenancyEntity.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
-        do {
-            return try context.fetch(request).compactMap(ManagedObjectMapping.tenancy(from:))
-        } catch {
-            throw RepositoryError.fetchFailed(underlying: error)
-        }
-    }
-
     func fetchTenancy(id: UUID) throws -> Tenancy? {
         try managedTenancy(id: id).flatMap(ManagedObjectMapping.tenancy(from:))
     }

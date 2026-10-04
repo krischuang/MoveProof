@@ -3,13 +3,12 @@ import Foundation
 
 /// In-memory stand-ins for the repository protocols.
 ///
-/// Because the repositories are expressed purely in domain value types, these
-/// mocks are plain dictionaries. No Core Data stack is created, no store file is
-/// written, and a use case test runs in microseconds — which is the practical
-/// payoff of putting the protocol boundary where it is.
+/// The repositories are written purely in domain value types, so these mocks are
+/// just dictionaries. No Core Data stack, no store file, and a use case test runs in
+/// microseconds. That speed is the payoff for putting the protocol boundary here.
 ///
-/// Each mock can also be told to fail, so error paths are exercised rather than
-/// only the paths where everything works.
+/// Each mock can also be told to fail, so the error paths get tested too, not only
+/// the paths where everything works.
 
 // MARK: - Tenancy
 
@@ -32,11 +31,6 @@ final class MockTenancyRepository: TenancyRepository {
             .filter { $0.status.isActive }
             .sorted { $0.createdAt > $1.createdAt }
             .first
-    }
-
-    func fetchAllTenancies() throws -> [Tenancy] {
-        if let errorToThrow { throw errorToThrow }
-        return tenancies.values.sorted { $0.createdAt > $1.createdAt }
     }
 
     func fetchTenancy(id: UUID) throws -> Tenancy? {
@@ -78,11 +72,6 @@ final class MockInspectionRepository: InspectionRepository {
         return areas.values
             .filter { $0.tenancyID == tenancyID }
             .sorted { $0.displayOrder < $1.displayOrder }
-    }
-
-    func fetchIncompleteInspectionAreas(forTenancy tenancyID: UUID) throws -> [InspectionArea] {
-        if let errorToThrow { throw errorToThrow }
-        return try fetchAreas(forTenancy: tenancyID).filter { $0.inspectionStatus != .complete }
     }
 
     func fetchArea(id: UUID) throws -> InspectionArea? {
@@ -157,7 +146,7 @@ final class MockEvidenceRepository: EvidenceRepository {
     /// Fails every method.
     var errorToThrow: Error?
     /// Fails only `save`, so a test can let the reads succeed and still exercise the
-    /// write-failure path — which is where the file rollback lives.
+    /// write-failure path, which is where the file rollback lives.
     var saveErrorToThrow: Error?
     private(set) var savedEvidence: [EvidenceItem] = []
     private(set) var deletedEvidenceIDs: [UUID] = []

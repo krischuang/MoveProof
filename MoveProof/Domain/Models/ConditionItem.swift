@@ -1,7 +1,7 @@
 import Foundation
 
-/// A single thing the tenant checks inside a room — walls, flooring, a window, an
-/// appliance — together with the condition they found it in.
+/// A single thing the tenant checks inside a room (walls, flooring, a window, an
+/// appliance) together with the condition they found it in.
 struct ConditionItem: Identifiable, Equatable, Hashable {
 
     let id: UUID

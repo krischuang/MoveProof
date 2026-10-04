@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Screen 1 — the tenant's overview of one property's documentation.
+/// Screen 1: the tenant's overview of one property's documentation.
 ///
 /// Answers, in order: how long have I got, how far have I got, and what still
 /// needs my attention.

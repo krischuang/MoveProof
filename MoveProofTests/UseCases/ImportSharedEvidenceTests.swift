@@ -2,11 +2,11 @@ import XCTest
 @testable import MoveProof
 
 /// Rules covered: a tenancy must exist, only photos and PDFs are accepted, missing
-/// files are reported rather than swallowed, and importing the same inbox item twice
+/// files are reported instead of swallowed, and importing the same inbox item twice
 /// is refused.
 ///
 /// The repositories are mocked, but the inbox is the real `SharedEvidenceInbox`
-/// writing into the real App Group container. That is deliberate: the inbox *is*
+/// writing into the real App Group container. That is on purpose: the inbox *is*
 /// the contract between the Share Extension and the app, and a mocked version would
 /// prove nothing about whether the two processes can actually hand files over.
 final class ImportSharedEvidenceTests: XCTestCase {
@@ -59,7 +59,7 @@ final class ImportSharedEvidenceTests: XCTestCase {
         }
     }
 
-    /// Writes a file into the inbox exactly the way the Share Extension does.
+    /// Writes a file into the inbox the same way the Share Extension does.
     @discardableResult
     private func shareFile(
         named name: String,
@@ -223,7 +223,7 @@ final class ImportSharedEvidenceTests: XCTestCase {
         XCTAssertEqual(
             fileStore.removedFileNames.count,
             1,
-            "A failed save must roll the adopted file back rather than orphaning bytes on disk"
+            "A failed save must delete the copied file instead of orphaning it on disk"
         )
         XCTAssertTrue(fileStore.storedFiles.isEmpty, "Nothing should be left in evidence storage")
         XCTAssertEqual(

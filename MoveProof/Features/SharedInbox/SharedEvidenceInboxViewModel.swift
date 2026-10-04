@@ -2,9 +2,9 @@ import Foundation
 
 /// Drives the inbox of files the Share Extension has handed over.
 ///
-/// Every decision here goes through `ImportSharedEvidenceUseCase`. The view model
-/// never inspects a content type or checks for duplicates itself — that would put a
-/// second copy of the import rules in the UI.
+/// Every decision goes through `ImportSharedEvidenceUseCase`. This file never checks
+/// a content type or looks for duplicates itself, which would put a second copy of
+/// the import rules in the UI.
 @Observable
 final class SharedEvidenceInboxViewModel {
 
@@ -99,19 +99,23 @@ final class SharedEvidenceInboxViewModel {
             return true
         } catch {
             message = TenantMessage(error, whileDoing: "filing that shared item")
-            // Reload either way: a duplicate or missing file changes what should be
-            // on screen, and leaving a stale row invites the tenant to retry blindly.
+            // Reload either way. A duplicate or missing file changes what should be
+            // on screen, and a stale row just invites another pointless tap.
             load()
             return false
         }
     }
 
-    func discard(_ row: InboxRow) {
+    /// - Returns: `true` when the item left the inbox.
+    @discardableResult
+    func discard(_ row: InboxRow) -> Bool {
         do {
             try environment.importSharedEvidence.discard(row.item)
             load()
+            return true
         } catch {
             message = TenantMessage(error, whileDoing: "removing that shared item")
+            return false
         }
     }
 

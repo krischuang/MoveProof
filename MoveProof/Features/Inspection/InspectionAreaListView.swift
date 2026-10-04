@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Screen 3 — the rooms in this property and how far each one has got.
+/// Screen 3: the rooms in this property and how far each one has got.
 struct InspectionAreaListView: View {
 
     @Environment(MoveProofModel.self) private var model
@@ -68,9 +68,13 @@ struct InspectionAreaListView: View {
                             areaRow(summary)
                         }
                     }
-                    .onDelete { viewModel.deleteAreas(at: $0); model.dataChanged() }
+                    .onDelete { offsets in
+                        if viewModel.deleteAreas(at: offsets) {
+                            model.dataChanged()
+                        }
+                    }
                 } footer: {
-                    Text("\(viewModel.completeCount) of \(viewModel.summaries.count) rooms reviewed. Removing a room keeps any photos you filed — they move back to your evidence library.")
+                    Text("\(viewModel.completeCount) of \(viewModel.summaries.count) rooms reviewed. Removing a room keeps any photos you filed; they move back to your evidence library.")
                 }
             }
         }

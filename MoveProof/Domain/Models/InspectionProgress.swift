@@ -1,8 +1,8 @@
 import Foundation
 
 /// A computed view of how far the tenant has got. Produced by
-/// `ReviewInspectionProgressUseCase`, consumed by the dashboard and — in reduced
-/// form — by the widget.
+/// `ReviewInspectionProgressUseCase`, consumed by the dashboard and, in reduced
+/// form, by the widget.
 struct InspectionProgress: Equatable {
 
     let areasTotal: Int
@@ -44,7 +44,7 @@ struct InspectionProgress: Equatable {
     }
 
     /// The privacy-reduced form published to the App Group for the widget.
-    /// Address, notes and photographs are deliberately not carried across.
+    /// Address, notes and photographs are left out on purpose.
     func snapshot(generatedAt: Date) -> InspectionSnapshot {
         InspectionSnapshot(
             areasTotal: areasTotal,

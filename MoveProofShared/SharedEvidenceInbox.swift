@@ -2,10 +2,10 @@ import Foundation
 
 /// Metadata the Share Extension records alongside each file it hands over.
 ///
-/// Note what is *absent*: there is no tenancy, no inspection area, no condition
-/// item and no evidence classification. The Share Extension deliberately knows
-/// nothing about the domain — it captures the file plus enough provenance for the
-/// main app to make those decisions later, inside `ImportSharedEvidenceUseCase`.
+/// Note what is missing: no tenancy, no inspection area, no condition item and no
+/// evidence type. The Share Extension knows nothing about the domain on purpose. It
+/// captures the file and enough detail about where it came from for the main app to
+/// decide the rest later, in `ImportSharedEvidenceUseCase`.
 struct PendingSharedEvidence: Codable, Equatable, Identifiable, Sendable {
 
     /// Identifies both this record and the file it describes.
@@ -149,8 +149,8 @@ struct SharedEvidenceInbox {
 
     /// All items awaiting import, oldest first.
     ///
-    /// A metadata file whose companion payload is missing is skipped rather than
-    /// thrown on, so one corrupt hand-off cannot block the whole inbox.
+    /// A metadata file whose matching payload is missing is skipped instead of
+    /// throwing, so one bad hand-off cannot block the whole inbox.
     func pendingItems() throws -> [PendingSharedEvidence] {
         let inbox = try inboxURL()
         let contents = try FileManager.default.contentsOfDirectory(

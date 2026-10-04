@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Screen 8 — files handed over by the Share Extension, waiting to be filed as
+/// Screen 8: files handed over by the Share Extension, waiting to be filed as
 /// evidence or discarded.
 struct SharedEvidenceInboxView: View {
 
@@ -96,8 +96,9 @@ struct SharedEvidenceInboxView: View {
                 .controlSize(.small)
 
                 Button(role: .destructive) {
-                    viewModel.discard(row)
-                    model.dataChanged()
+                    if viewModel.discard(row) {
+                        model.dataChanged()
+                    }
                 } label: {
                     Label("Discard", systemImage: "trash")
                 }

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Screen 6 — every piece of evidence filed against this property.
+/// Screen 6: every piece of evidence filed against this property.
 struct EvidenceLibraryView: View {
 
     @Environment(MoveProofModel.self) private var model
@@ -62,8 +62,9 @@ struct EvidenceLibraryView: View {
                                 }
                                 .swipeActions {
                                     Button("Remove", role: .destructive) {
-                                        viewModel.remove(row)
-                                        model.dataChanged()
+                                        if viewModel.remove(row) {
+                                            model.dataChanged()
+                                        }
                                     }
                                 }
                             }

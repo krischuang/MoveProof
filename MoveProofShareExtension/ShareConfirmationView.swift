@@ -2,12 +2,12 @@ import SwiftUI
 
 /// What the tenant sees in the share sheet.
 ///
-/// Says plainly what will happen — the file goes to MoveProof's inbox, and filing
-/// it against a room happens in the app — so the hand-off does not look like a
-/// finished action when it is really the first half of one.
+/// Says plainly what will happen: the file goes into MoveProof's inbox, and filing it
+/// against a room happens in the app. That stops the hand-off looking like a finished
+/// action when it is really only the first half of one.
 ///
-/// The view owns the outcome; `SharedItemCollector` is a value type that inspects
-/// the attachments and returns a result rather than holding state of its own.
+/// The view owns the outcome. `SharedItemCollector` is a value type that looks at the
+/// attachments and returns a result, holding no state of its own.
 struct ShareConfirmationView: View {
 
     let collector: SharedItemCollector

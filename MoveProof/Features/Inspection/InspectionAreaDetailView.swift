@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Screen 4 — one room's condition checklist, and the sign-off that closes it.
+/// Screen 4: one room's condition checklist, and the sign-off that closes it.
 struct InspectionAreaDetailView: View {
 
     @Environment(MoveProofModel.self) private var model
@@ -47,7 +47,11 @@ struct InspectionAreaDetailView: View {
         .alert("Rename room", isPresented: $isRenaming) {
             TextField("Room name", text: $draftName)
             Button("Cancel", role: .cancel) {}
-            Button("Save") { viewModel.rename(to: draftName); model.dataChanged() }
+            Button("Save") {
+                if viewModel.rename(to: draftName) {
+                    model.dataChanged()
+                }
+            }
         }
         .tenantMessageAlert($viewModel.message)
         .task { viewModel.load() }
@@ -93,8 +97,9 @@ struct InspectionAreaDetailView: View {
 
             if viewModel.isComplete {
                 Button {
-                    viewModel.reopen()
-                    model.dataChanged()
+                    if viewModel.reopen() {
+                        model.dataChanged()
+                    }
                 } label: {
                     Label("Reopen this room", systemImage: "arrow.uturn.backward")
                 }

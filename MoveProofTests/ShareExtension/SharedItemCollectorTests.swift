@@ -7,9 +7,9 @@ import XCTest
 ///
 /// A share extension cannot be launched from a test, but `SharedItemCollector` is
 /// where all of its behaviour lives, and `NSItemProvider` is the same class iOS
-/// hands it. So this covers the parts that can genuinely go wrong — which
-/// attachments are accepted, which type identifier is recorded, and what actually
-/// lands in the inbox — without depending on the share sheet.
+/// hands it. So this covers the parts that can actually go wrong (which attachments
+/// are accepted, which type identifier is recorded, and what actually lands in the
+/// inbox) without depending on the share sheet.
 @MainActor
 final class SharedItemCollectorTests: XCTestCase {
 
@@ -38,7 +38,7 @@ final class SharedItemCollectorTests: XCTestCase {
 
     // MARK: - Fixtures
 
-    /// A one-pixel PNG, so image providers carry genuinely decodable bytes.
+    /// A one-pixel PNG, so the image providers carry bytes that really decode.
     private var pngData: Data {
         Data(base64Encoded: """
         iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==
@@ -106,7 +106,7 @@ final class SharedItemCollectorTests: XCTestCase {
         XCTAssertEqual(
             collector.initialOutcome,
             .nothingUsable,
-            "The extension should tell the tenant up front rather than accepting something MoveProof can't file"
+            "The extension should say so up front instead of accepting something the app can't file"
         )
     }
 
@@ -127,7 +127,7 @@ final class SharedItemCollectorTests: XCTestCase {
 
     func testAnAttachmentWithNoNameIsNamedByKindAndDate() {
         // Photos hands attachments over with no suggested name, so this is the common
-        // case rather than an edge case.
+        // case, not an edge case.
         let collector = SharedItemCollector(inputItems: [
             extensionItem([provider(data: pngData, typeIdentifier: UTType.png.identifier, suggestedName: nil)])
         ])
@@ -226,7 +226,7 @@ final class SharedItemCollectorTests: XCTestCase {
         )
         XCTAssertNotNil(
             EvidenceKind.forContentType(item.contentTypeIdentifier),
-            "public.tiff is one the app does accept — the point is that the app decided, not the extension"
+            "public.tiff is one the app does accept; the point is that the app decided, not the extension"
         )
     }
 

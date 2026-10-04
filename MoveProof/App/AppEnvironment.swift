@@ -2,10 +2,9 @@ import Foundation
 
 /// The composition root.
 ///
-/// One explicit place where the Core Data implementations are chosen and the use
-/// cases are assembled. Everything downstream depends on protocols, so a test —
-/// or a preview — builds the same object graph with mocks and no DI container is
-/// needed to make that possible.
+/// The one place where the Core Data implementations get chosen and the use cases get
+/// built. Everything below depends on protocols, so a test or a preview can build the
+/// same object graph with mocks. No DI container needed.
 struct AppEnvironment {
 
     let tenancyRepository: TenancyRepository
@@ -46,14 +45,40 @@ struct AppEnvironment {
 
     // MARK: - Use cases
     //
-    // Assembled here rather than inside view models, so a view model receives a
-    // ready use case and never decides which repository implementation to use.
+    // Built here instead of inside view models, so a view model is handed a ready
+    // use case and never picks a repository implementation itself.
 
     var startTenancyInspection: StartTenancyInspectionUseCase {
         StartTenancyInspectionUseCase(
             tenancyRepository: tenancyRepository,
             inspectionRepository: inspectionRepository
         )
+    }
+
+    var updateTenancyDetails: UpdateTenancyDetailsUseCase {
+        UpdateTenancyDetailsUseCase(tenancyRepository: tenancyRepository)
+    }
+
+    var addInspectionArea: AddInspectionAreaUseCase {
+        AddInspectionAreaUseCase(
+            tenancyRepository: tenancyRepository,
+            inspectionRepository: inspectionRepository
+        )
+    }
+
+    var renameInspectionArea: RenameInspectionAreaUseCase {
+        RenameInspectionAreaUseCase(inspectionRepository: inspectionRepository)
+    }
+
+    var removeInspectionArea: RemoveInspectionAreaUseCase {
+        RemoveInspectionAreaUseCase(
+            inspectionRepository: inspectionRepository,
+            evidenceRepository: evidenceRepository
+        )
+    }
+
+    var reopenInspectionArea: ReopenInspectionAreaUseCase {
+        ReopenInspectionAreaUseCase(inspectionRepository: inspectionRepository)
     }
 
     var recordConditionEvidence: RecordConditionEvidenceUseCase {
@@ -82,6 +107,21 @@ struct AppEnvironment {
     var captureEvidence: CaptureEvidenceUseCase {
         CaptureEvidenceUseCase(
             tenancyRepository: tenancyRepository,
+            inspectionRepository: inspectionRepository,
+            evidenceRepository: evidenceRepository,
+            evidenceFileStore: evidenceFileStore
+        )
+    }
+
+    var fileEvidence: FileEvidenceUseCase {
+        FileEvidenceUseCase(
+            inspectionRepository: inspectionRepository,
+            evidenceRepository: evidenceRepository
+        )
+    }
+
+    var discardEvidence: DiscardEvidenceUseCase {
+        DiscardEvidenceUseCase(
             inspectionRepository: inspectionRepository,
             evidenceRepository: evidenceRepository,
             evidenceFileStore: evidenceFileStore

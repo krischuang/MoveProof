@@ -1,6 +1,6 @@
 import Foundation
 
-/// Stores evidence binaries in the App Group container rather than in Core Data.
+/// Stores the evidence files in the App Group container, not in Core Data.
 ///
 /// Photographs are large and a tenant may file dozens of them. Keeping the bytes
 /// on the file system keeps the SQLite store small and lets iOS manage the files,
@@ -19,7 +19,7 @@ struct AppGroupEvidenceFileStore: EvidenceFileStore {
         if FileManager.default.fileExists(atPath: destination.path) {
             try FileManager.default.removeItem(at: destination)
         }
-        // Copy rather than move: the inbox record is removed separately, only once
+        // Copy, not move. The inbox record is removed separately, and only once
         // the domain import has actually succeeded.
         try FileManager.default.copyItem(at: sourceURL, to: destination)
         return storedFileName

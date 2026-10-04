@@ -2,19 +2,19 @@ import SwiftUI
 
 /// The widget's view layer.
 ///
-/// These live in `MoveProofShared` rather than inside the widget extension so the
+/// These live in `MoveProofShared` instead of the widget extension so the
 /// app target compiles them as well. That is what lets the unit tests render both
 /// families with `ImageRenderer` and catch a layout that would come out blank on
-/// the Home Screen — a widget extension cannot be instantiated from a test, but its
+/// the Home Screen. A widget extension cannot be instantiated from a test, but its
 /// views can.
 ///
-/// What these views deliberately never receive: the property address, the tenant's
+/// What these views never receive, on purpose: the property address, the tenant's
 /// notes, or any evidence file. `InspectionSnapshot` has no field that could carry
 /// them.
 
 // MARK: - Small
 
-/// systemSmall: the two numbers a tenant checks most — how far through, how long left.
+/// systemSmall: the two numbers a tenant checks most, how far through and how long left.
 struct SmallInspectionView: View {
 
     let snapshot: InspectionSnapshot
@@ -146,7 +146,7 @@ struct MediumInspectionView: View {
 
 // MARK: - Empty state
 
-/// Shown only when the app genuinely has no tenancy — never as a stand-in for data
+/// Shown only when there really is no tenancy, never as a stand-in for data
 /// that exists but could not be read.
 struct NoTenancyView: View {
 

@@ -97,12 +97,28 @@ final class EvidenceLibraryViewModel {
         }
     }
 
-    func remove(_ row: EvidenceRow) {
+    /// Deletes a piece of evidence and the file behind it.
+    ///
+    /// `DiscardEvidenceUseCase` reports when this leaves damage with nothing to show
+    /// for it. That is worth telling the tenant, since it is the gap the app is built
+    /// to prevent and they may not realise that was the only photo.
+    /// - Returns: `true` when the evidence was discarded.
+    @discardableResult
+    func remove(_ row: EvidenceRow) -> Bool {
         do {
-            try environment.captureEvidence.removeEvidence(id: row.evidence.id)
+            let outcome = try environment.discardEvidence.execute(evidenceID: row.evidence.id)
+            if let itemTitle = outcome.leftDamageUndocumented {
+                message = TenantMessage(
+                    title: "That was the only proof you had",
+                    whatHappened: "\"\(itemTitle)\" is still recorded as damaged, but now has no photo and no note.",
+                    whatToDoNext: "Open that item and add a photo or a short note, or the damage will count as undocumented when you sign the room off."
+                )
+            }
             load()
+            return true
         } catch {
             message = TenantMessage(error, whileDoing: "removing that evidence")
+            return false
         }
     }
 
@@ -119,7 +135,7 @@ final class EvidenceLibraryViewModel {
         case .photos:
             "No photos filed against this property yet."
         case .documents:
-            "No documents yet. Share a PDF — such as your signed condition report — to MoveProof from Files or Mail."
+            "No documents yet. Share a PDF, such as your signed condition report, to MoveProof from Files or Mail."
         }
     }
 }

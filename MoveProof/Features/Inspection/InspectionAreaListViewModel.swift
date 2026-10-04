@@ -77,26 +77,15 @@ final class InspectionAreaListViewModel {
         }
     }
 
-    /// Adds a room the standard set did not cover, e.g. a garage or study.
+    /// Adds a room the default set did not cover, e.g. a garage or study.
+    ///
+    /// The name check, the uniqueness check, the checklist and the ordering are all
+    /// handled by `AddInspectionAreaUseCase`. This just reloads and shows the result.
+    /// - Returns: `true` when a room was added.
+    @discardableResult
     func addArea(named name: String) -> Bool {
-        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let tenancy, !trimmed.isEmpty else { return false }
-
-        let nextOrder = (summaries.map { $0.area.displayOrder }.max() ?? -1) + 1
-        let (areas, items) = StartTenancyInspectionUseCase.buildWalkthrough(
-            for: tenancy.id,
-            areaNames: [trimmed]
-        )
-        // buildWalkthrough numbers from zero; append this room after the existing ones.
-        let area = InspectionArea(
-            id: areas[0].id,
-            name: trimmed,
-            displayOrder: nextOrder,
-            tenancyID: tenancy.id
-        )
-
         do {
-            try environment.inspectionRepository.createAreas([area], withItems: items)
+            try environment.addInspectionArea.execute(named: name)
             load()
             return true
         } catch {
@@ -105,15 +94,42 @@ final class InspectionAreaListViewModel {
         }
     }
 
-    func deleteAreas(at offsets: IndexSet) {
-        let ids = offsets.map { summaries[$0].area.id }
-        do {
-            for id in ids {
-                try environment.inspectionRepository.deleteArea(id: id)
+    /// Removes rooms the tenant swiped away.
+    ///
+    /// Photos filed against a removed room are not deleted with it. They go back to
+    /// the library unfiled. `RemoveInspectionAreaUseCase` reports how many, and the
+    /// tenant is told, because an unfiled photo no longer counts as documenting
+    /// anything.
+    /// - Returns: `true` when at least one room was removed.
+    @discardableResult
+    func deleteAreas(at offsets: IndexSet) -> Bool {
+        let ids = offsets.compactMap { summaries.indices.contains($0) ? summaries[$0].area.id : nil }
+        var removedAny = false
+        var detachedEvidenceCount = 0
+
+        for id in ids {
+            do {
+                let outcome = try environment.removeInspectionArea.execute(areaID: id)
+                removedAny = removedAny || outcome.didRemoveRoom
+                detachedEvidenceCount += outcome.detachedEvidenceCount
+            } catch {
+                if message == nil {
+                    message = TenantMessage(error, whileDoing: "removing that room")
+                }
             }
-            load()
-        } catch {
-            message = TenantMessage(error, whileDoing: "removing that room")
         }
+
+        if detachedEvidenceCount > 0 {
+            message = TenantMessage(
+                title: "Your photos are still here",
+                whatHappened: detachedEvidenceCount == 1
+                    ? "1 photo was filed against that room. It's back in your evidence library, no longer attached to a checklist item."
+                    : "\(detachedEvidenceCount) photos were filed against that room. They're back in your evidence library, no longer attached to a checklist item.",
+                whatToDoNext: "Open the Evidence tab and file them against another room, or leave them as a general record of the property."
+            )
+        }
+
+        load()
+        return removedAny
     }
 }

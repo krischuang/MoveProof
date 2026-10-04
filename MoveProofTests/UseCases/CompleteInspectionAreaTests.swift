@@ -107,7 +107,7 @@ final class CompleteInspectionAreaTests: XCTestCase {
 
     func testARoomCannotBeSignedOffWhileDamageHasNoPhotoOrNote() throws {
         _ = try addItem("Walls and ceiling", state: .undamaged)
-        // Reviewed, so rule 3 passes — but undocumented, so rule 4 must catch it.
+        // Reviewed, so rule 3 passes, but undocumented, so rule 4 must catch it.
         _ = try addItem("Exhaust fan and mould", state: .damaged, notes: "")
 
         XCTAssertThrowsError(try useCase.execute(areaID: area.id)) { error in

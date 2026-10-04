@@ -2,9 +2,11 @@ import Foundation
 
 /// Drives the property setup form.
 ///
-/// Validation wording comes from `TenancySetupError`, so the message the tenant
-/// reads in the form is the same message the rule produces — there is no second,
-/// drifting copy of the rules in the UI.
+/// The form holds no rules of its own. Setting up goes through
+/// `StartTenancyInspectionUseCase` and editing goes through
+/// `UpdateTenancyDetailsUseCase`. Both check the fields with the same
+/// `TenancyDetailsRules`, so the message the tenant reads comes from the rule itself
+/// and there is no second copy of it here that could drift.
 @Observable
 final class TenancySetupViewModel {
 
@@ -75,17 +77,27 @@ final class TenancySetupViewModel {
     func save() -> Bool {
         inlineMessage = nil
 
-        if var tenancy = existingTenancy {
-            return updateExisting(&tenancy)
+        if let tenancy = existingTenancy {
+            return updateExisting(tenancy)
         }
         return startNew()
     }
 
-    private func startNew() -> Bool {
-        let request = StartTenancyInspectionUseCase.Request(
+    /// What the tenant has typed, in the shape the domain checks. The only thing
+    /// decided here is whether they are using the suggested due date or their own.
+    private var enteredDetails: TenancyDetails {
+        TenancyDetails(
             propertyAddress: propertyAddress,
             moveInDate: moveInDate,
             conditionReportDueDate: usesDefaultDueDate ? nil : conditionReportDueDate
+        )
+    }
+
+    private func startNew() -> Bool {
+        let request = StartTenancyInspectionUseCase.Request(
+            propertyAddress: enteredDetails.propertyAddress,
+            moveInDate: enteredDetails.moveInDate,
+            conditionReportDueDate: enteredDetails.conditionReportDueDate
         )
         do {
             try environment.startTenancyInspection.execute(request)
@@ -97,37 +109,18 @@ final class TenancySetupViewModel {
         }
     }
 
-    /// Editing an existing tenancy re-applies the same field rules by hand, because
-    /// `StartTenancyInspectionUseCase` would correctly refuse a second walkthrough.
-    private func updateExisting(_ tenancy: inout Tenancy) -> Bool {
-        let address = propertyAddress.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !address.isEmpty else {
-            inlineMessage = TenantMessage(
-                TenancySetupError.missingPropertyAddress,
-                whileDoing: "saving your property details"
-            )
-            return false
-        }
-
-        let calendar = Calendar.current
-        let dueDate = usesDefaultDueDate
-            ? Tenancy.defaultConditionReportDueDate(movingIn: moveInDate)
-            : conditionReportDueDate
-
-        guard calendar.startOfDay(for: dueDate) >= calendar.startOfDay(for: moveInDate) else {
-            inlineMessage = TenantMessage(
-                TenancySetupError.conditionReportDueBeforeMoveIn,
-                whileDoing: "saving your property details"
-            )
-            return false
-        }
-
-        tenancy.propertyAddress = address
-        tenancy.moveInDate = moveInDate
-        tenancy.conditionReportDueDate = dueDate
-
+    /// Editing the details of the walkthrough already under way.
+    ///
+    /// `StartTenancyInspectionUseCase` would refuse this as a second walkthrough, so
+    /// it is a separate use case instead of a repository write with the rules copied
+    /// into this file.
+    private func updateExisting(_ tenancy: Tenancy) -> Bool {
+        let request = UpdateTenancyDetailsUseCase.Request(
+            tenancyID: tenancy.id,
+            details: enteredDetails
+        )
         do {
-            try environment.tenancyRepository.save(tenancy)
+            existingTenancy = try environment.updateTenancyDetails.execute(request)
             didFinish = true
             return true
         } catch {

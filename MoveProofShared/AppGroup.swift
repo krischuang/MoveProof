@@ -12,7 +12,7 @@ import Foundation
 ///       Widget/snapshot.json   read-only summary published by the main app for the widget
 ///
 /// Keeping the identifier and the directory names in one file means a typo cannot
-/// silently split the app and its extensions into two different containers.
+/// quietly split the app and its extensions into two different containers.
 enum AppGroup {
 
     /// Must match the App Group capability enabled on all three targets.
@@ -48,8 +48,8 @@ enum AppGroup {
     }
 }
 
-/// Raised when shared storage cannot be reached. This is an infrastructure fault
-/// rather than a domain rule, so it is deliberately kept out of the domain error files.
+/// Raised when shared storage cannot be reached. This is a technical fault, not a
+/// domain rule, so it is kept out of the domain error files.
 enum AppGroupAccessError: Error {
     case containerUnavailable
 }

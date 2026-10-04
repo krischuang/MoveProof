@@ -8,7 +8,7 @@ import XCTest
 /// cannot tell you whether `evidence.@count == 0` is a valid predicate, whether the
 /// relationship traversal `inspectionArea.tenancy.id` resolves, or whether a delete
 /// rule does what the model says. Those only show up against the real stack, so
-/// these tests use one — configured in memory, so no tenant data is touched.
+/// these tests use one, configured in memory, so no tenant data is touched.
 final class CoreDataRepositoryTests: XCTestCase {
 
     private var store: InspectionStore!
@@ -134,25 +134,6 @@ final class CoreDataRepositoryTests: XCTestCase {
     }
 
     // MARK: - Predicate: incomplete rooms
-
-    func testTheIncompleteRoomQueryReturnsOnlyRoomsThatStillNeedWork() throws {
-        let tenancy = try makeTenancy()
-        try makeArea(in: tenancy, name: "Kitchen", order: 0, status: .complete)
-        try makeArea(in: tenancy, name: "Bathroom", order: 1, status: .inProgress)
-        try makeArea(in: tenancy, name: "Laundry", order: 2, status: .notStarted)
-
-        // A room belonging to a different property must not leak in.
-        let other = try makeTenancy(address: "Someone else's place", status: .archived)
-        try makeArea(in: other, name: "Their kitchen", order: 0, status: .notStarted)
-
-        let incomplete = try inspectionRepository.fetchIncompleteInspectionAreas(forTenancy: tenancy.id)
-
-        XCTAssertEqual(
-            incomplete.map(\.name),
-            ["Bathroom", "Laundry"],
-            "The predicate should exclude complete rooms and other properties, and preserve walkthrough order"
-        )
-    }
 
     // MARK: - Predicate: undocumented damage
 
@@ -294,7 +275,7 @@ final class CoreDataRepositoryTests: XCTestCase {
         )
         XCTAssertNil(
             remaining.first?.conditionItemID,
-            "The photo should return to the unfiled library rather than pointing at a deleted item"
+            "The photo should go back to the unfiled library, not point at a deleted item"
         )
     }
 

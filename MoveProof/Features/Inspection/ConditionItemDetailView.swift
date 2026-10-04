@@ -1,7 +1,7 @@
 import PhotosUI
 import SwiftUI
 
-/// Screen 5 — record what the tenant found for one checklist item, and attach the
+/// Screen 5: record what the tenant found for one checklist item, and attach the
 /// photos that back it up.
 struct ConditionItemDetailView: View {
 
@@ -104,8 +104,9 @@ struct ConditionItemDetailView: View {
                     }
                     .swipeActions {
                         Button("Remove", role: .destructive) {
-                            viewModel.removeEvidence(item)
-                            model.dataChanged()
+                            if viewModel.removeEvidence(item) {
+                                model.dataChanged()
+                            }
                         }
                     }
                 }
@@ -156,8 +157,9 @@ struct ConditionItemDetailView: View {
                 return
             }
             let name = "Photo \(Date().formatted(date: .abbreviated, time: .shortened))"
-            viewModel.attachPhoto(data: data, displayName: name)
-            model.dataChanged()
+            if viewModel.attachPhoto(data: data, displayName: name) {
+                model.dataChanged()
+            }
         } catch {
             viewModel.message = TenantMessage(error, whileDoing: "adding that photo")
         }

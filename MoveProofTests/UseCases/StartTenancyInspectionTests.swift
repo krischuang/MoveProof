@@ -36,7 +36,7 @@ final class StartTenancyInspectionTests: XCTestCase {
         XCTAssertEqual(
             areas.count,
             InspectionArea.defaultAreaNames.count,
-            "A new walkthrough should open with the standard set of rooms rather than an empty list"
+            "A new walkthrough should open with the standard rooms, not an empty list"
         )
         XCTAssertEqual(areas.map(\.name), InspectionArea.defaultAreaNames)
         XCTAssertTrue(areas.allSatisfy { $0.inspectionStatus == .notStarted })

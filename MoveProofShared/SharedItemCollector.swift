@@ -4,23 +4,23 @@ import UniformTypeIdentifiers
 /// Pulls the files out of a share sheet invocation and writes them into the App
 /// Group inbox.
 ///
-/// This is the whole of the Share Extension's logic, and it is deliberately dull.
+/// This is the whole of the Share Extension's logic, and it is meant to be dull.
 /// It does not know what a tenancy is, whether MoveProof can use a PDF, or whether
-/// this file has been shared before. It records what it was handed — the bytes, the
-/// name, the type identifier — and stops. `ImportSharedEvidenceUseCase` in the main
+/// this file has been shared before. It records what it was handed (the bytes, the
+/// name, the type identifier) and stops. `ImportSharedEvidenceUseCase` in the main
 /// app makes every one of those decisions.
 ///
 /// Keeping it this thin matters for two reasons. A share extension is killed
 /// quickly if it uses much memory, and duplicating the import rules here would mean
 /// two copies of them to keep in step.
 ///
-/// It lives in `MoveProofShared` rather than inside the extension target so the app
+/// It lives in `MoveProofShared` instead of the extension target so the app
 /// target compiles it as well. A share extension cannot be launched from a test, but
-/// this type can — which is how `SharedItemCollectorTests` exercises the real
+/// this type can, which is how `SharedItemCollectorTests` exercises the real
 /// attachment handling against real `NSItemProvider`s.
 ///
 /// Deliberately a value type: the attachments are inspected once at init and the
-/// outcome is returned rather than mutated in place, so the confirmation view owns
+/// outcome is returned instead of being mutated in place, so the confirmation view owns
 /// the state and this type owns none.
 struct SharedItemCollector {
 
@@ -36,7 +36,7 @@ struct SharedItemCollector {
 
     /// One attachment the extension is prepared to copy.
     ///
-    /// Identified by its position in the share sheet's attachment list rather than a
+    /// Identified by its position in the share sheet's attachment list instead of a
     /// fresh UUID, so two reads of the same invocation describe the same items and
     /// equality compares what the candidate actually is.
     struct Candidate: Identifiable, Equatable {
@@ -46,7 +46,7 @@ struct SharedItemCollector {
     }
 
     /// Type identifiers the extension is willing to carry. Kept broad and purely
-    /// structural — the main app decides what is actually usable as evidence.
+    /// structural; the main app decides what is actually usable as evidence.
     private static let acceptedTypes: [UTType] = [.image, .pdf]
 
     private let providers: [NSItemProvider]
@@ -140,7 +140,7 @@ struct SharedItemCollector {
     // MARK: - Loading
 
     /// Picks the most specific accepted type the provider offers, so a JPEG is
-    /// recorded as `public.jpeg` rather than the generic `public.image`.
+    /// recorded as `public.jpeg` instead of the generic `public.image`.
     private static func bestTypeIdentifier(for provider: NSItemProvider) -> String? {
         if provider.hasItemConformingToTypeIdentifier(UTType.pdf.identifier) {
             return UTType.pdf.identifier
@@ -191,7 +191,7 @@ struct SharedItemCollector {
     }
 
     /// iOS does not expose the host application to a share extension, so provenance
-    /// is recorded as unknown rather than guessed. The field exists because the main
-    /// app shows it when it is available — for example for evidence added in-app.
+    /// is recorded as unknown instead of guessed. The field exists because the main
+    /// app shows it when it is available, for example for evidence added in-app.
     private static var hostApplicationIdentifier: String? { nil }
 }

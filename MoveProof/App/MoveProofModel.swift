@@ -1,10 +1,10 @@
 import SwiftUI
 
-/// App-wide state shared by every screen: the object graph, and a revision counter
-/// that lets one screen tell the others their data has moved on.
+/// App-wide state shared by every screen: the object graph, plus a revision counter
+/// one screen uses to tell the others their data has changed.
 ///
-/// Deliberately small. It holds no domain data of its own — screens still load what
-/// they need through their own view models and use cases. Its only job is to hand
+/// Kept small on purpose. It holds no domain data of its own, and screens still load
+/// what they need through their own view models and use cases. Its job is to hand
 /// out the environment and to say "something changed, reload".
 @Observable
 final class MoveProofModel {
@@ -27,8 +27,12 @@ final class MoveProofModel {
         self.environment = environment
     }
 
-    /// Call after any successful write.
+    /// Call this after a save succeeds, not before.
+    ///
+    /// Screens reload off `revision`, and the widget snapshot is rewritten here so
+    /// every change reaches the Home Screen the same way instead of each use case
+    /// having to remember `WidgetCenter` itself.
     func dataChanged() {
         revision += 1
-    }
+        environment.reviewInspectionProgress.refreshPublishedSnapshot()    }
 }

@@ -3,18 +3,18 @@ import Foundation
 /// Signs a room off as reviewed.
 ///
 /// ## Rules enforced
-/// 1. The room must still exist in the walkthrough.
+/// 1. The room must still exist.
 /// 2. A room already signed off is not signed off twice.
-/// 3. **Every required checklist item must have been reviewed.** A room cannot be
-///    marked complete while the tenant still has unanswered items in it — that is
-///    how gaps in a condition report happen.
+/// 3. **Every required checklist item must be reviewed.** A room cannot be marked
+///    complete while items in it are still unanswered. That is how gaps in a
+///    condition report happen.
 /// 4. **No damage may be left undocumented.** Even if every item has an answer, a
-///    `damaged` or `notWorking` item with neither a note nor a photo blocks
-///    sign-off, because the record would not mean anything later.
+///    `damaged` or `notWorking` item with no note and no photo blocks sign-off,
+///    because that record would mean nothing later.
 ///
-/// Rule 4 deliberately re-checks what `RecordConditionEvidenceUseCase` already
-/// enforces. Evidence can be deleted after the fact, so sign-off verifies the
-/// room's current state rather than trusting that it was valid when recorded.
+/// Rule 4 checks again what `RecordConditionEvidenceUseCase` already checked. Photos
+/// can be deleted afterwards, so sign-off looks at the room as it is now instead of
+/// trusting that it was fine when first recorded.
 struct CompleteInspectionAreaUseCase {
 
     let inspectionRepository: InspectionRepository

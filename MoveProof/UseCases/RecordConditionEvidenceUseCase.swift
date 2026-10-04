@@ -1,21 +1,19 @@
 import Foundation
 
-/// Records what the tenant found for one checklist item, and enforces MoveProof's
-/// central rule about damage.
+/// Records what the tenant found for one checklist item. This is where the main
+/// rule about damage is enforced.
 ///
 /// ## Rules enforced
-/// 1. The checklist item must still exist in the walkthrough.
-/// 2. A condition must actually be chosen — `notReviewed` is a starting value,
-///    not an answer.
+/// 1. The checklist item must still exist.
+/// 2. A condition must be chosen. `notReviewed` is the starting value, not an answer.
 /// 3. **Damage needs backing up.** A condition of `damaged` or `notWorking` is
-///    refused unless the tenant has written a note or attached at least one piece
-///    of evidence. This is the whole point of the app: a bare "damaged" tick is
-///    worthless months later when the tenant has to explain what they saw.
-/// 4. Evidence attached to the item must belong to the same tenancy.
+///    refused unless there is a note or at least one photo. This is the main point
+///    of the app. A bare "damaged" tick is no use months later when the tenant has
+///    to explain what they saw.
+/// 4. Any evidence attached must belong to the same tenancy.
 ///
-/// Recording a condition also moves the room from `notStarted` to `inProgress`,
-/// so the room list reflects the walkthrough without the tenant managing status
-/// by hand.
+/// Recording a condition also moves the room from `notStarted` to `inProgress`, so
+/// the room list stays up to date without the tenant setting the status by hand.
 struct RecordConditionEvidenceUseCase {
 
     let inspectionRepository: InspectionRepository
@@ -53,16 +51,16 @@ struct RecordConditionEvidenceUseCase {
             throw ConditionRecordingError.conditionStateNotChosen
         }
 
-        // Rule 4: check provenance before anything is written.
+        // Rule 4: check where the evidence came from before writing anything.
         for evidence in request.evidenceToAttach where evidence.tenancyID != area.tenancyID {
             throw ConditionRecordingError.evidenceBelongsToAnotherTenancy
         }
 
         let trimmedNotes = request.notes.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // Rule 3: damage must carry something the tenant can recognise later.
-        // Evidence already filed against this item counts, so re-saving a
-        // previously documented item does not suddenly fail.
+        // Rule 3: damage needs something the tenant can recognise later. Photos
+        // already filed against this item count, so re-saving an item that was
+        // documented earlier does not suddenly fail.
         if request.conditionState.requiresSupportingDetail {
             let alreadyFiled = try evidenceRepository.evidenceCount(forConditionItem: item.id)
             let totalEvidence = alreadyFiled + request.evidenceToAttach.count
@@ -71,8 +69,8 @@ struct RecordConditionEvidenceUseCase {
             }
         }
 
-        // All rules passed — write the evidence first so the checklist item is
-        // never left claiming support that was not actually saved.
+        // Rules passed. Save the evidence first so the checklist item is never
+        // left claiming backup that did not actually save.
         for var evidence in request.evidenceToAttach {
             evidence.conditionItemID = item.id
             try evidenceRepository.save(evidence)
@@ -88,8 +86,8 @@ struct RecordConditionEvidenceUseCase {
         return item
     }
 
-    /// A room that has had something recorded in it is no longer "not started".
-    /// Sign-off stays a deliberate act, handled by `CompleteInspectionAreaUseCase`.
+    /// A room with something recorded in it is no longer "not started". Signing it
+    /// off is a separate action, handled by `CompleteInspectionAreaUseCase`.
     private func advanceAreaStatusIfNeeded(_ area: InspectionArea) throws {
         guard area.inspectionStatus == .notStarted else { return }
         var updated = area

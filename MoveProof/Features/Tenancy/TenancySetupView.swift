@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Screen 2 — add the property, or change its details later.
+/// Screen 2: add the property, or change its details later.
 struct TenancySetupView: View {
 
     @Environment(MoveProofModel.self) private var model
