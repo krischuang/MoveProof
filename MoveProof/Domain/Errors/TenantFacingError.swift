@@ -1,10 +1,10 @@
 import Foundation
 
-/// Every domain error MoveProof can show a tenant answers two questions:
-/// what went wrong, and what they can do about it.
+/// Every domain error the tenant can see answers two questions: what went wrong, and
+/// what they can do about it.
 ///
-/// This is deliberately separate from `localizedDescription`, which stays technical
-/// and goes to the log. A tenant who hits a rule should never see "Save failed".
+/// Kept separate from `localizedDescription`, which stays technical and goes to the
+/// log. A tenant who hits a rule should never see "Save failed".
 protocol TenantFacingError: Error {
 
     /// Plain-language statement of what stopped, in rental-inspection vocabulary.
@@ -20,16 +20,11 @@ protocol TenantFacingError: Error {
 extension TenantFacingError {
 
     var title: String { "Can't do that yet" }
-
-    /// Single-string form for compact UI such as inline form validation.
-    var combinedMessage: String {
-        "\(whatHappened) \(whatToDoNext)"
-    }
 }
 
-/// Wraps anything that is *not* a domain rule — a failed write, an unreachable
-/// container — so the UI still has something humane to show while the technical
-/// detail goes to the log rather than the screen.
+/// Wraps anything that is *not* a domain rule, such as a failed write or a container
+/// that cannot be reached, so the UI still has something readable to show while the
+/// technical detail goes to the log instead of the screen.
 struct UnexpectedFailure: TenantFacingError {
 
     /// The technical error, for logging only. Never rendered.

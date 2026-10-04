@@ -22,21 +22,6 @@ struct CoreDataInspectionRepository: InspectionRepository {
         }
     }
 
-    /// "Which rooms still need work?" answered by the store rather than in Swift.
-    func fetchIncompleteInspectionAreas(forTenancy tenancyID: UUID) throws -> [InspectionArea] {
-        let request = InspectionAreaEntity.fetchRequest()
-        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-            NSPredicate(format: "tenancy.id == %@", tenancyID as CVarArg),
-            NSPredicate(format: "inspectionStatusRaw != %@", AreaInspectionStatus.complete.rawValue)
-        ])
-        request.sortDescriptors = [NSSortDescriptor(key: "displayOrder", ascending: true)]
-        do {
-            return try context.fetch(request).compactMap(ManagedObjectMapping.inspectionArea(from:))
-        } catch {
-            throw RepositoryError.fetchFailed(underlying: error)
-        }
-    }
-
     func fetchArea(id: UUID) throws -> InspectionArea? {
         try managedArea(id: id).flatMap(ManagedObjectMapping.inspectionArea(from:))
     }
@@ -61,12 +46,12 @@ struct CoreDataInspectionRepository: InspectionRepository {
         try managedConditionItem(id: id).flatMap(ManagedObjectMapping.conditionItem(from:))
     }
 
-    /// The query MoveProof is built around: damage recorded with nothing to back it up.
+    /// The query the app is built around: damage recorded with nothing to back it up.
     ///
-    /// Three domain conditions combined into one compound predicate, traversing
-    /// two relationships (`inspectionArea.tenancy`) and aggregating a third
-    /// (`evidence.@count`), so the store returns only the rows that matter instead
-    /// of the app loading every checklist item and sifting through it in memory.
+    /// Three conditions in one compound predicate, crossing two relationships
+    /// (`inspectionArea.tenancy`) and counting a third (`evidence.@count`), so the
+    /// store returns only the rows that matter instead of the app loading every
+    /// checklist item and filtering in memory.
     func fetchConditionItemsMissingSupportingDetail(forTenancy tenancyID: UUID) throws -> [ConditionItem] {
         let request = ConditionItemEntity.fetchRequest()
         let damagingStates = [ConditionState.damaged.rawValue, ConditionState.notWorking.rawValue]
@@ -144,7 +129,7 @@ struct CoreDataInspectionRepository: InspectionRepository {
             throw RepositoryError.inspectionAreaNotFound(id)
         }
         // Cascade removes the room's checklist; the Nullify rule on ConditionItem →
-        // evidence keeps the tenant's photos in the library rather than deleting them.
+        // evidence keeps the photos in the library instead of deleting them.
         context.delete(entity)
         try commit()
     }

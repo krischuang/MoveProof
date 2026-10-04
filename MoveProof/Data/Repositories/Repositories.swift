@@ -1,8 +1,8 @@
 import Foundation
 
-/// Thrown when persistence itself fails. Use cases let this propagate; the
-/// presentation layer wraps it in `UnexpectedFailure` so the tenant sees a humane
-/// message while the technical detail goes to the log.
+/// Thrown when storage itself fails. Use cases let this pass through, and the UI
+/// layer wraps it in `UnexpectedFailure` so the tenant gets a readable message while
+/// the technical detail goes to the log.
 enum RepositoryError: Error {
     case tenancyNotFound(UUID)
     case inspectionAreaNotFound(UUID)
@@ -16,18 +16,15 @@ enum RepositoryError: Error {
 
 /// Storage of the property being documented.
 ///
-/// Expressed entirely in domain value types — no `NSManagedObject`, no
-/// `NSFetchRequest` — so a test can substitute an in-memory mock without Core Data.
+/// Written entirely in domain value types, with no `NSManagedObject` and no
+/// `NSFetchRequest`, so a test can swap in an in-memory mock without Core Data.
 protocol TenancyRepository {
 
     /// The tenancy the tenant is currently documenting.
     ///
-    /// Backed by a predicate on tenancy status rather than a fetch-everything-and-filter,
-    /// because "active" is a domain condition the store can answer directly.
+    /// Uses a predicate on tenancy status instead of fetching everything and
+    /// filtering, since "active" is a condition the store can answer itself.
     func fetchActiveTenancy() throws -> Tenancy?
-
-    /// Every tenancy, newest first, for the archive.
-    func fetchAllTenancies() throws -> [Tenancy]
 
     func fetchTenancy(id: UUID) throws -> Tenancy?
 
@@ -44,10 +41,6 @@ protocol InspectionRepository {
 
     func fetchAreas(forTenancy tenancyID: UUID) throws -> [InspectionArea]
 
-    /// Rooms still needing work — a predicate query on inspection status, used by
-    /// the dashboard's "needs attention" list and by the progress summary.
-    func fetchIncompleteInspectionAreas(forTenancy tenancyID: UUID) throws -> [InspectionArea]
-
     func fetchArea(id: UUID) throws -> InspectionArea?
 
     func fetchConditionItems(inArea areaID: UUID) throws -> [ConditionItem]
@@ -57,9 +50,9 @@ protocol InspectionRepository {
     /// Condition items across the whole tenancy that record damage or a fault but
     /// carry neither a note nor a single piece of evidence.
     ///
-    /// This is the query MoveProof exists for, and it is a compound Core Data
-    /// predicate spanning a relationship: state is damaging, notes are empty, and
-    /// the evidence relationship is empty.
+    /// The main query the app is built around. A compound predicate across a
+    /// relationship: the state is damaging, the notes are empty, and there is no
+    /// evidence attached.
     func fetchConditionItemsMissingSupportingDetail(forTenancy tenancyID: UUID) throws -> [ConditionItem]
 
     /// Creates rooms and their seeded checklists in one write.
@@ -88,8 +81,8 @@ protocol EvidenceRepository {
 
     /// Looks up evidence that was imported from a given Share Extension inbox record.
     ///
-    /// A predicate on `importedInboxItemID` is what makes importing idempotent: the
-    /// same shared file cannot be filed twice, even if the tenant taps Import again.
+    /// The predicate on `importedInboxItemID` is what makes importing idempotent.
+    /// The same shared file cannot be filed twice, even if Import is tapped again.
     func fetchEvidence(importedFromInboxItem inboxItemID: UUID) throws -> EvidenceItem?
 
     /// Count of evidence attached to a condition item, without loading the files.
@@ -104,8 +97,8 @@ protocol EvidenceRepository {
 
 /// App-controlled storage of the evidence binaries.
 ///
-/// Kept behind a protocol for the same reason as the repositories: use case tests
-/// must be able to run the import rules without writing real files to disk.
+/// Behind a protocol for the same reason as the repositories, so use case tests can
+/// run the import rules without writing real files to disk.
 protocol EvidenceFileStore {
 
     /// Moves a file from elsewhere (such as the Share Extension inbox) into

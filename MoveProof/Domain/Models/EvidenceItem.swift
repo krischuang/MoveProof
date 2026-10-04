@@ -9,7 +9,7 @@ struct EvidenceItem: Identifiable, Equatable, Hashable {
 
     let id: UUID
     var kind: EvidenceKind
-    /// File name relative to the shared `Evidence/` directory — never an absolute path,
+    /// File name relative to the shared `Evidence/` directory, never an absolute path,
     /// because container paths change between installs.
     var storedFileName: String
     /// Name to show the tenant, e.g. the original file name from a shared PDF.
@@ -47,10 +47,6 @@ struct EvidenceItem: Identifiable, Equatable, Hashable {
         self.conditionItemID = conditionItemID
         self.tenancyID = tenancyID
         self.importedInboxItemID = importedInboxItemID
-    }
-
-    var isAssignedToConditionItem: Bool {
-        conditionItemID != nil
     }
 }
 
