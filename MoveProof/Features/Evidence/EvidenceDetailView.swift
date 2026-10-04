@@ -1,7 +1,7 @@
 import QuickLook
 import SwiftUI
 
-/// Screen 7 — one piece of evidence: what it shows, where it came from, and which
+/// Screen 7: one piece of evidence: what it shows, where it came from, and which
 /// checklist item it backs up.
 struct EvidenceDetailView: View {
 
@@ -110,88 +110,6 @@ struct EvidenceDetailView: View {
                 "Recorded",
                 value: viewModel.evidence.capturedAt.formatted(date: .long, time: .shortened)
             )
-        }
-    }
-}
-
-/// Drives the evidence detail screen.
-@Observable
-final class EvidenceDetailViewModel {
-
-    struct FilingOption: Identifiable, Equatable {
-        let id: UUID
-        let label: String
-    }
-
-    private(set) var evidence: EvidenceItem
-    private(set) var filingOptions: [FilingOption] = []
-    private(set) var fileURL: URL?
-    private(set) var fileIsMissing = false
-
-    var selectedConditionItemID: UUID?
-    var notes: String
-    var message: TenantMessage?
-
-    private let environment: AppEnvironment
-
-    init(environment: AppEnvironment, evidence: EvidenceItem) {
-        self.environment = environment
-        self.evidence = evidence
-        self.selectedConditionItemID = evidence.conditionItemID
-        self.notes = evidence.notes
-    }
-
-    var filingHasChanged: Bool { selectedConditionItemID != evidence.conditionItemID }
-    var noteHasChanged: Bool { notes != evidence.notes }
-
-    func load() {
-        do {
-            if let refreshed = try environment.evidenceRepository.fetchEvidence(id: evidence.id) {
-                evidence = refreshed
-                selectedConditionItemID = refreshed.conditionItemID
-                notes = refreshed.notes
-            }
-
-            fileURL = try? environment.evidenceFileStore.url(forStoredFileName: evidence.storedFileName)
-            fileIsMissing = !environment.evidenceFileStore.fileExists(named: evidence.storedFileName)
-
-            let areas = try environment.inspectionRepository.fetchAreas(forTenancy: evidence.tenancyID)
-            filingOptions = try areas.flatMap { area in
-                try environment.inspectionRepository.fetchConditionItems(inArea: area.id).map {
-                    FilingOption(id: $0.id, label: "\(area.name) · \($0.title)")
-                }
-            }
-        } catch {
-            message = TenantMessage(error, whileDoing: "loading this evidence")
-        }
-    }
-
-    @discardableResult
-    func saveFiling() -> Bool {
-        var updated = evidence
-        updated.conditionItemID = selectedConditionItemID
-        do {
-            try environment.evidenceRepository.save(updated)
-            evidence = updated
-            return true
-        } catch {
-            message = TenantMessage(error, whileDoing: "filing this evidence")
-            return false
-        }
-    }
-
-    @discardableResult
-    func saveNote() -> Bool {
-        var updated = evidence
-        updated.notes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
-        do {
-            try environment.evidenceRepository.save(updated)
-            evidence = updated
-            notes = updated.notes
-            return true
-        } catch {
-            message = TenantMessage(error, whileDoing: "saving your note")
-            return false
         }
     }
 }
