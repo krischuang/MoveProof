@@ -87,8 +87,8 @@ final class InspectionAreaDetailViewModel {
         }
     }
 
-    /// Attempts sign-off. The use case owns the rules; this only decides where the
-    /// resulting message is shown.
+    /// Tries to sign the room off. The use case owns the rules; this only decides
+    /// where the resulting message appears.
     /// - Returns: `true` when the room was signed off.
     @discardableResult
     func signOff() -> Bool {
@@ -104,29 +104,31 @@ final class InspectionAreaDetailViewModel {
     }
 
     /// Reopens a signed-off room so the tenant can change something they recorded.
-    func reopen() {
-        guard area.inspectionStatus == .complete else { return }
-        var updated = area
-        updated.inspectionStatus = .inProgress
+    /// - Returns: `true` when the room was reopened.
+    @discardableResult
+    func reopen() -> Bool {
         do {
-            try environment.inspectionRepository.save(updated)
-            area = updated
+            area = try environment.reopenInspectionArea.execute(areaID: area.id)
             signOffBlockedMessage = nil
+            return true
         } catch {
             message = TenantMessage(error, whileDoing: "reopening this room")
+            return false
         }
     }
 
-    func rename(to newName: String) {
-        let trimmed = newName.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty, trimmed != area.name else { return }
-        var updated = area
-        updated.name = trimmed
+    /// - Returns: `true` when the room was renamed.
+    @discardableResult
+    func rename(to newName: String) -> Bool {
+        let request = RenameInspectionAreaUseCase.Request(areaID: area.id, newName: newName)
         do {
-            try environment.inspectionRepository.save(updated)
-            area = updated
+            let renamed = try environment.renameInspectionArea.execute(request)
+            let didChange = renamed.name != area.name
+            area = renamed
+            return didChange
         } catch {
             message = TenantMessage(error, whileDoing: "renaming this room")
+            return false
         }
     }
 }

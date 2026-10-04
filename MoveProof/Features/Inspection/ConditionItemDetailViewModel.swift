@@ -34,9 +34,8 @@ final class ConditionItemDetailViewModel {
         selectedState.requiresSupportingDetail
     }
 
-    /// Whether what the tenant has entered right now satisfies the damage rule.
-    /// Drives the prompt shown *before* they hit Save, so the rule reads as
-    /// guidance rather than a rejection.
+    /// Whether what is entered right now meets the damage rule. Drives the prompt
+    /// shown *before* they hit Save, so the rule reads as a hint, not a rejection.
     var hasSupportingDetail: Bool {
         !notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !evidence.isEmpty
     }
@@ -48,7 +47,7 @@ final class ConditionItemDetailViewModel {
 
     var notesPlaceholder: String {
         requiresSupportingDetail
-            ? "Describe the damage — where it is and how bad it looks"
+            ? "Describe the damage: where it is and how bad it looks"
             : "Anything worth remembering about this item"
     }
 
@@ -67,8 +66,8 @@ final class ConditionItemDetailViewModel {
         }
     }
 
-    /// Records the condition. Rule enforcement lives in the use case, so this
-    /// method has no copy of the damage rule — it only routes the outcome.
+    /// Records the condition. The rules live in the use case, so there is no copy of
+    /// the damage rule here. This only shows the result.
     /// - Returns: `true` when the record was saved.
     @discardableResult
     func save() -> Bool {
@@ -89,7 +88,9 @@ final class ConditionItemDetailViewModel {
     }
 
     /// Files a photo the tenant picked against this item.
-    func attachPhoto(data: Data, displayName: String) {
+    /// - Returns: `true` when the photo was filed.
+    @discardableResult
+    func attachPhoto(data: Data, displayName: String) -> Bool {
         let request = CaptureEvidenceUseCase.Request(
             imageData: data,
             displayName: displayName,
@@ -99,17 +100,26 @@ final class ConditionItemDetailViewModel {
             try environment.captureEvidence.execute(request)
             load()
             inlineMessage = nil
+            return true
         } catch {
             message = TenantMessage(error, whileDoing: "adding that photo")
+            return false
         }
     }
 
-    func removeEvidence(_ item: EvidenceItem) {
+    /// - Returns: `true` when the photo was discarded.
+    @discardableResult
+    func removeEvidence(_ item: EvidenceItem) -> Bool {
         do {
-            try environment.captureEvidence.removeEvidence(id: item.id)
+            try environment.discardEvidence.execute(evidenceID: item.id)
             load()
+            // The screen already shows the "needs backing up" prompt from
+            // `supportingDetailPrompt`, so losing the last photo is visible here
+            // without a second message on top.
+            return true
         } catch {
             message = TenantMessage(error, whileDoing: "removing that photo")
+            return false
         }
     }
 
