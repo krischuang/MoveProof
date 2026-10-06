@@ -5,6 +5,7 @@ import XCTest
 /// before anything is written, the checklist link is checked before any bytes reach
 /// disk, photos cannot cross between properties, and a failed write leaves nothing
 /// behind.
+@MainActor
 final class CaptureEvidenceTests: XCTestCase {
 
     private var tenancyRepository: MockTenancyRepository!

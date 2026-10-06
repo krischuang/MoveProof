@@ -10,6 +10,7 @@ import XCTest
 /// the widget for real. What it can do is exercise the same store the widget reads,
 /// and render the same views the widget renders, which is where layout mistakes
 /// actually live.
+@MainActor
 final class WidgetSnapshotTests: XCTestCase {
 
     private var store: InspectionSnapshotStore!

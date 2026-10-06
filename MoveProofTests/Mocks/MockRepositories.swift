@@ -57,6 +57,9 @@ final class MockInspectionRepository: InspectionRepository {
     var areas: [UUID: InspectionArea] = [:]
     var conditionItems: [UUID: ConditionItem] = [:]
     var errorToThrow: Error?
+    /// Fails only `deleteArea`, so a test can let the lookups and counts succeed and
+    /// still exercise the path where the removal itself is what goes wrong.
+    var deleteAreaErrorToThrow: Error?
 
     private(set) var savedAreas: [InspectionArea] = []
     private(set) var savedConditionItems: [ConditionItem] = []
@@ -131,6 +134,7 @@ final class MockInspectionRepository: InspectionRepository {
 
     func deleteArea(id: UUID) throws {
         if let errorToThrow { throw errorToThrow }
+        if let deleteAreaErrorToThrow { throw deleteAreaErrorToThrow }
         areas[id] = nil
         for (key, item) in conditionItems where item.inspectionAreaID == id {
             conditionItems[key] = nil
@@ -148,6 +152,8 @@ final class MockEvidenceRepository: EvidenceRepository {
     /// Fails only `save`, so a test can let the reads succeed and still exercise the
     /// write-failure path, which is where the file rollback lives.
     var saveErrorToThrow: Error?
+    /// Fails only `delete`, for the path where a discard cannot be completed.
+    var deleteErrorToThrow: Error?
     private(set) var savedEvidence: [EvidenceItem] = []
     private(set) var deletedEvidenceIDs: [UUID] = []
 
@@ -194,6 +200,7 @@ final class MockEvidenceRepository: EvidenceRepository {
 
     func delete(evidenceID: UUID) throws {
         if let errorToThrow { throw errorToThrow }
+        if let deleteErrorToThrow { throw deleteErrorToThrow }
         evidence[evidenceID] = nil
         deletedEvidenceIDs.append(evidenceID)
     }

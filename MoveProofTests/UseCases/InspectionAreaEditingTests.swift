@@ -6,6 +6,7 @@ import XCTest
 ///
 /// These four used to be done straight from the view models, so the rules they carry
 /// are checked here instead of being implied by the screens.
+@MainActor
 final class InspectionAreaEditingTests: XCTestCase {
 
     private var tenancyRepository: MockTenancyRepository!
@@ -222,6 +223,51 @@ final class InspectionAreaEditingTests: XCTestCase {
         let outcome = try removeArea.execute(areaID: UUID())
 
         XCTAssertEqual(outcome, .roomAlreadyGone)
+    }
+
+    /// A room that was already gone and a room that will not delete look the same to
+    /// the tenant unless the second one is reported, so the storage fault is turned
+    /// into a domain refusal instead of being passed through.
+    func testRemovingARoomReportsAFriendlyFailureWhenItCannotBeSaved() throws {
+        let study = try addArea.execute(named: "Study")
+        inspectionRepository.deleteAreaErrorToThrow = RepositoryError.saveFailed(
+            underlying: CocoaError(.fileWriteUnknown)
+        )
+
+        XCTAssertThrowsError(try removeArea.execute(areaID: study.id)) { error in
+            XCTAssertEqual(error as? InspectionAreaEditError, .couldNotRemoveRoom)
+        }
+        XCTAssertNotNil(
+            try? inspectionRepository.fetchArea(id: study.id),
+            "The room is still there, which is what the message tells the tenant"
+        )
+    }
+
+    /// If MoveProof cannot even look the room up it does not know whether there was
+    /// one, so it says so rather than reporting a removal that never happened.
+    func testARoomThatCannotBeLookedUpIsNotReportedAsAlreadyGone() {
+        inspectionRepository.errorToThrow = RepositoryError.fetchFailed(
+            underlying: CocoaError(.fileReadUnknown)
+        )
+
+        XCTAssertThrowsError(try removeArea.execute(areaID: kitchen.id)) { error in
+            XCTAssertEqual(error as? InspectionAreaEditError, .couldNotRemoveRoom)
+        }
+    }
+
+    /// Whatever went wrong underneath, what reaches the screen is rental vocabulary.
+    func testAFailedRoomRemovalIsExplainedInTheTenantsOwnTerms() throws {
+        let study = try addArea.execute(named: "Study")
+        inspectionRepository.deleteAreaErrorToThrow = RepositoryError.saveFailed(
+            underlying: CocoaError(.fileWriteUnknown)
+        )
+
+        XCTAssertThrowsError(try removeArea.execute(areaID: study.id)) { error in
+            let tenantFacing = error as? TenantFacingError
+            XCTAssertNotNil(tenantFacing, "A storage fault must not reach the screen as a RepositoryError")
+            XCTAssertTrue(tenantFacing?.whatHappened.contains("room") == true)
+            XCTAssertFalse(tenantFacing?.whatToDoNext.isEmpty == true)
+        }
     }
 
     // MARK: - Reopening a room

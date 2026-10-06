@@ -103,8 +103,18 @@ In parallel, from any other app:
 ## Architecture
 
 ```
-View  →  ViewModel  →  Use Case  →  Repository protocol  →  Core Data repository  →  Core Data
+Significant business operation
+  View  →  ViewModel  →  Use Case  →  Repository protocol  →  Core Data repository  →  Core Data
+
+Read-only screen loading
+  View  →  ViewModel  ────────────→  Repository protocol  →  Core Data repository  →  Core Data
 ```
+
+Every write and every business rule takes the first path. Loading a screen takes the
+second: a view model reads through the same repository protocols without a use case in
+between, because a read enforces no rule and changes nothing, and wrapping each one in
+a pass-through use case would add a layer that carried no behaviour. Both paths stop at
+the protocol boundary, which is the part that matters.
 
 The rule the whole structure exists to enforce: **no view and no view model imports
 CoreData or holds an `NSManagedObjectContext`.** They work exclusively in domain value
@@ -118,8 +128,10 @@ grep -rn "import CoreData\|NSManagedObjectContext\|NSFetchRequest" MoveProof/Fea
 
 Business rules live in the Use Case structs and nowhere else, and **no view model
 writes to a repository directly.** View models read through the repository protocols
-to build what the screen shows, and every write goes through a use case. That is also
-checkable:
+to build what the screen shows, and every write goes through a use case. That is the
+boundary the greps below check, and it is the one the assessment asks for: a view
+model may ask the store a question, but it may never decide anything or change
+anything. That is also checkable:
 
 ```bash
 grep -rn "Repository.save(\|Repository.delete(\|Repository.createAreas(" MoveProof/Features/
@@ -238,20 +250,33 @@ its own rules.
 | `UpdateTenancyDetailsUseCase` | Fixes an address or due date without disturbing the walkthrough. Same field rules via `TenancyDetailsRules`, except the backdating typo check, which does **not** apply to a tenancy already under way. The id, creation date and status are not editable. | `TenancySetupError` |
 | `AddInspectionAreaUseCase` | A walkthrough must exist, a room needs a name, and **room names must be unique within a walkthrough** so evidence stays easy to match. Adds the standard checklist and puts the room at the end. | `InspectionAreaEditError` |
 | `RenameInspectionAreaUseCase` | Name required; uniqueness re-checked against the other rooms; renaming to the name it already has does nothing and is not treated as a clash. | `InspectionAreaEditError` |
-| `RemoveInspectionAreaUseCase` | Removing an absent room is not a failure. Counts the evidence **before** deleting and reports how much goes back to the library unfiled, because the store nullifies instead of cascading. | None |
+| `RemoveInspectionAreaUseCase` | Removing an absent room is not a failure. Counts the evidence **before** deleting and reports how much goes back to the library unfiled, because the store nullifies instead of cascading. A removal that cannot be completed is a failure, and says so. | `InspectionAreaEditError` |
 | `ReopenInspectionAreaUseCase` | Only a signed-off room can be reopened; it returns to in-progress, never to not-started. | `InspectionAreaEditError` |
 | `RecordConditionEvidenceUseCase` | **Damage or a fault needs a note or a photo before it will save.** A condition must be chosen. Evidence cannot come from another property. Advances the room to in-progress. | `ConditionRecordingError` |
 | `CompleteInspectionAreaUseCase` | No sign-off while required items are unreviewed, or while damage is undocumented. Re-checks the room as it is now instead of trusting it was fine when recorded. | `InspectionCompletionError` |
 | `CaptureEvidenceUseCase` | A tenancy must exist, an empty pick is refused instead of saved as a useless file, the checklist link is checked before any bytes are written, photos cannot be attached across properties, and a failed save deletes the file again. | `EvidenceCaptureError` |
 | `FileEvidenceUseCase` | Where evidence belongs and what it shows are **one** operation. The evidence must still exist, the target item must be in this walkthrough and this property, and notes are trimmed in one place. | `EvidenceFilingError` |
-| `DiscardEvidenceUseCase` | The database row goes before the file. Warns the tenant when a discard leaves damage with nothing to show for it, so they do not quietly lose their only proof. | None |
+| `DiscardEvidenceUseCase` | The database row goes before the file. Warns the tenant when a discard leaves damage with nothing to show for it, so they do not quietly lose their only proof. A record that will not delete is reported as still being in the library. | `EvidenceFilingError` |
 | `ImportSharedEvidenceUseCase` | A tenancy must exist; only photos and PDFs; the file must still be there; **import is idempotent**; the inbox is drained only after the evidence is committed. | `SharedEvidenceImportError` |
 | `ReviewInspectionProgressUseCase` | Status is worked out from what is recorded, not stored by hand. Only counts, progress and the due date reach the widget. This is also the one place the app calls to rewrite the snapshot after a successful save. | `InspectionReviewError` |
 
-Two of these return an outcome instead of throwing, because the operation does
-succeed but the tenant still needs to know something. Removing a room reports how many
-photos became unfiled, and discarding evidence reports when it was the last thing
-backing a damaged item. Neither one refuses what the tenant asked for.
+Two of these return an outcome as well as being able to throw, because the operation
+usually succeeds and the tenant still needs to know something. Removing a room reports
+how many photos became unfiled, and discarding evidence reports when it was the last
+thing backing a damaged item. Neither outcome refuses what the tenant asked for, and
+neither is an error: a room that was already gone, or evidence already discarded, is
+what the tenant wanted. The typed error on those two is reserved for the case where
+the operation genuinely did not happen.
+
+That split is deliberate everywhere. `RepositoryError` describes storage, not a rule
+the tenant broke, so it is never rendered. Where a storage fault means something
+specific to the tenant, because a write can fail part way and they need to know which
+half happened, the use case translates it: `CaptureEvidenceUseCase`,
+`ImportSharedEvidenceUseCase`, `RemoveInspectionAreaUseCase` and
+`DiscardEvidenceUseCase` each map it onto a case of their own error type. Elsewhere
+the fault is the app's with nothing specific to add, so it reaches the UI boundary and
+`TenantMessage` wraps it in `UnexpectedFailure`, which is still plain language with a
+next step. Either way the technical detail goes to `AppLog`, never to the screen.
 
 The two rules that actually block the tenant are worth setting out separately:
 
@@ -359,7 +384,17 @@ the share sheet lets them push evidence in from wherever it already is.
 
 *What it does:* claims images and files in the share sheet, copies what it is handed into
 the App Group inbox along with its type identifier and original name, confirms, and calls
-`completeRequest(returningItems:)` so the sheet dismisses.
+`completeRequest(returningItems:)` so the sheet dismisses. Both exit paths, saving and
+cancelling, end in that call, so the sheet cannot be left hanging.
+
+*Why the activation rule is broader than the two types MoveProof keeps:*
+`NSExtensionActivationSupportsFileWithMaxCount` admits any document, not only PDFs, so
+a host app can reach the extension with something MoveProof will not file. That is
+handled rather than prevented. `SharedItemCollector` only carries attachments
+conforming to image or PDF, shows "Nothing MoveProof can store" when none do, and
+`ImportSharedEvidenceUseCase` checks the type again in the main app before anything is
+filed. A UTI predicate in the plist would narrow the share sheet slightly and move that
+decision out of the code that is tested, which was not judged a good trade.
 
 *What it does not do:* it holds **no domain logic**. It does not know what a
 tenancy is, whether a PDF is usable as evidence, or whether this file has been shared
@@ -423,7 +458,7 @@ MoveProofTests/
 └── Widget/                    App Group contract + both-family rendering
 
 MoveProofUITests/              end-to-end workflow and share-sheet tests
-docs/                          report draft, architecture diagram, references, rubric audit
+docs/                          architecture diagram (source + render), references, rubric audit
 ```
 
 > **Note on `InspectionWidgetViews.swift`:** the widget's view layer sits in
@@ -473,7 +508,7 @@ xcrun simctl list devices available | grep iPhone
 
 ## Testing
 
-**Unit tests (148 tests, fast, no UI):**
+**Unit tests (154 tests, fast, no UI):**
 
 ```bash
 xcodebuild test -project MoveProof.xcodeproj -scheme MoveProof \
@@ -528,8 +563,8 @@ Stated plainly, because "it compiles" is not verification.
 | Claim | How it was verified |
 | --- | --- |
 | App builds, all three targets | `xcodebuild build` succeeds |
-| Whole default suite passes | `xcodebuild test`: **148 unit + 5 UI tests, 0 failures** |
-| 148 unit tests pass | `xcodebuild test -only-testing:MoveProofTests`: 148 executed, 0 failures |
+| Whole default suite passes | `xcodebuild test`: **154 unit + 5 UI tests, 0 failures** |
+| 154 unit tests pass | `xcodebuild test -only-testing:MoveProofTests`: 154 executed, 0 failures |
 | Business rules fire with tenant-facing wording | Unit tests, plus `MoveProofWalkthroughUITests` asserting the exact on-screen strings for both refusals, including the what-to-do-next line |
 | Core Data predicates are valid and correctly scoped | `CoreDataRepositoryTests` against a real in-memory store |
 | Delete rules behave as modelled | `testDeletingARoomKeepsTheTenantsEvidenceInTheLibrary` |
@@ -575,12 +610,13 @@ branch and merged with `--no-ff` so the branch structure stays visible in the hi
 ```
 feature/domain-foundation       domain models, typed errors, App Group
 feature/core-data-repository    schema, repository protocols, predicate queries
-feature/use-cases               the six use case structs
+feature/use-cases               the first six use case structs; the other seven
+                                arrived with the branches below
 feature/inspection-workflow     the eight SwiftUI screens
 feature/share-extension         Share Extension + App Group inbox
 feature/widget-extension        WidgetKit extension, two families
 feature/testing                 unit, repository and widget tests
-docs/assessment-documentation   README, report draft, diagram, references, audit
+docs/assessment-documentation   README, report documentation, diagram, references, audit
 fix/assessment3-rubric-gaps     move the remaining mutations into use cases,
                                 typed capture errors, widget refresh on write
 ```
@@ -597,5 +633,5 @@ rules, SwiftUI) is listed in [`docs/references.md`](docs/references.md), along w
 NSW Government and Tenants' Union of NSW sources that establish the problem and justify
 the seven-day default deadline.
 
-AI assistance was used during development and is described honestly in
-[`docs/Assessment3_Report_Draft.md`](docs/Assessment3_Report_Draft.md).
+AI assistance was used during development and is described honestly in Section 4.5,
+*Use of AI Tools*, of the submitted Assessment 3 report.

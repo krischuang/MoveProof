@@ -10,6 +10,11 @@
 %% layer the code may not skip, and the numbers follow one real workflow: the renter
 %% attaches a photograph to a condition item, and the Home Screen widget catches up
 %% with it. READ and WRITE are labelled on every arrow crossing into the App Group.
+%% .
+%% The dashed ViewModel to Repository arrow is the one shortcut the design allows, and
+%% it is drawn because the code takes it: loading a screen reads through the same
+%% repository protocols. Every write, and every business rule, still goes through a
+%% use case, and no view or view model touches Core Data either way.
 
 flowchart TB
 
@@ -25,7 +30,7 @@ flowchart TB
         direction TB
         V["<b>SwiftUI Views</b><br/>8 screens"]
         VM["<b>ViewModels</b><br/>8, @Observable"]
-        UC["<b>Use Cases</b><br/>13 structs<br/>all business rules"]
+        UC["<b>Use Cases</b><br/>13 structs<br/>all business rules,<br/>all writes"]
         MODEL["<b>MoveProofModel</b><br/><b>.dataChanged()</b><br/>post-save choke point"]
         ERR["<b>Typed domain errors</b><br/>8 enums"]
         REPO["<b>Repository protocols</b><br/>Tenancy, Inspection, Evidence,<br/>EvidenceFileStore,<br/>InspectionSnapshotPublishing"]
@@ -66,6 +71,9 @@ flowchart TB
     OTHER -->|"Share Sheet"| SE
     SE -->|"WRITE file<br/>+ metadata"| G_IN
     G_IN -->|"READ, then drained by<br/>ImportSharedEvidenceUseCase"| UC
+
+    %% ---------- Loading a screen: reads use the same protocols, no use case ----------
+    VM -. "read-only screen loading<br/>(no rule, no write)" .-> REPO
 
     %% ---------- Refusals return to the renter in domain language ----------
     UC -. "throws" .-> ERR

@@ -34,5 +34,6 @@ final class MoveProofModel {
     /// having to remember `WidgetCenter` itself.
     func dataChanged() {
         revision += 1
-        environment.reviewInspectionProgress.refreshPublishedSnapshot()    }
+        environment.reviewInspectionProgress.refreshPublishedSnapshot()
+    }
 }

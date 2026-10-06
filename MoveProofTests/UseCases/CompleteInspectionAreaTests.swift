@@ -3,6 +3,7 @@ import XCTest
 
 /// Rules covered: unreviewed required items block sign-off, undocumented damage
 /// blocks sign-off, optional items do not block it, and a room is not signed off twice.
+@MainActor
 final class CompleteInspectionAreaTests: XCTestCase {
 
     private var inspectionRepository: MockInspectionRepository!

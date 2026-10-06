@@ -9,6 +9,7 @@ import XCTest
 /// writing into the real App Group container. That is on purpose: the inbox *is*
 /// the contract between the Share Extension and the app, and a mocked version would
 /// prove nothing about whether the two processes can actually hand files over.
+@MainActor
 final class ImportSharedEvidenceTests: XCTestCase {
 
     private var tenancyRepository: MockTenancyRepository!
@@ -213,7 +214,13 @@ final class ImportSharedEvidenceTests: XCTestCase {
             underlying: NSError(domain: "test", code: 1)
         )
 
-        XCTAssertThrowsError(try useCase.execute(.init(item: shared)))
+        XCTAssertThrowsError(try useCase.execute(.init(item: shared))) { error in
+            XCTAssertEqual(
+                error as? SharedEvidenceImportError,
+                .couldNotFileSharedItem(displayName: "Kitchen floor.jpg"),
+                "A storage fault must reach the tenant as a shared-import failure, not a RepositoryError"
+            )
+        }
 
         XCTAssertEqual(
             fileStore.adoptedSourceURLs.count,
