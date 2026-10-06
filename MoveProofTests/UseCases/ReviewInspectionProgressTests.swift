@@ -3,6 +3,7 @@ import XCTest
 
 /// Rules covered: progress is worked out rather than stored, report-ready status
 /// follows the evidence, and the widget only ever receives reduced data.
+@MainActor
 final class ReviewInspectionProgressTests: XCTestCase {
 
     private var tenancyRepository: MockTenancyRepository!
@@ -146,7 +147,7 @@ final class ReviewInspectionProgressTests: XCTestCase {
         try addRoom("Kitchen", order: 0, status: .complete, items: [("Flooring", .undamaged, "")])
         try addRoom("Bathroom", order: 1, status: .inProgress, items: [("Flooring", .damaged, "")])
 
-        try useCase.execute(now: referenceDate)
+        _ = try useCase.execute(now: referenceDate)
 
         let snapshot = try XCTUnwrap(snapshotPublisher.lastSnapshot)
         XCTAssertEqual(snapshot.areasTotal, 2)
@@ -167,8 +168,8 @@ final class ReviewInspectionProgressTests: XCTestCase {
     func testReviewingProgressRepublishesTheSnapshotSoTheWidgetFollowsTheApp() throws {
         try addRoom("Kitchen", order: 0, status: .inProgress, items: [("Flooring", .notReviewed, "")])
 
-        try useCase.execute(now: referenceDate)
-        try useCase.execute(now: referenceDate)
+        _ = try useCase.execute(now: referenceDate)
+        _ = try useCase.execute(now: referenceDate)
 
         XCTAssertEqual(
             snapshotPublisher.publishedSnapshots.count,

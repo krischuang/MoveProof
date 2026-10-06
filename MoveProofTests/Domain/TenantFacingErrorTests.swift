@@ -6,7 +6,10 @@ import XCTest
 ///
 /// This started as the same loop copied into three different use case test files.
 /// Pulling it into one place covers all eight error types instead of three, and
-/// means a new error case only has to be added to one list.
+/// means a new error case only has to be added to one list. The list includes the
+/// cases a use case raises when a write will not complete, because those are the ones
+/// most likely to be left reading like a developer wrote them.
+@MainActor
 final class TenantFacingErrorTests: XCTestCase {
 
     /// One of every case across every domain error type. Associated values are
@@ -34,6 +37,7 @@ final class TenantFacingErrorTests: XCTestCase {
         InspectionAreaEditError.roomNameMissing,
         InspectionAreaEditError.duplicateRoomName(name: "Kitchen"),
         InspectionAreaEditError.roomNotSignedOff(roomName: "Kitchen"),
+        InspectionAreaEditError.couldNotRemoveRoom,
 
         EvidenceCaptureError.noActiveTenancy,
         EvidenceCaptureError.emptyPhoto(displayName: "photo.jpg"),
@@ -44,12 +48,14 @@ final class TenantFacingErrorTests: XCTestCase {
         EvidenceFilingError.evidenceNoLongerInLibrary,
         EvidenceFilingError.conditionItemNoLongerInWalkthrough,
         EvidenceFilingError.conditionItemBelongsToAnotherProperty,
+        EvidenceFilingError.couldNotDiscardEvidence,
 
         SharedEvidenceImportError.noActiveTenancy,
         SharedEvidenceImportError.unsupportedSharedContent(contentTypeIdentifier: "public.movie"),
         SharedEvidenceImportError.sharedItemUnavailable(displayName: "report.pdf"),
         SharedEvidenceImportError.duplicateEvidence(displayName: "report.pdf"),
         SharedEvidenceImportError.inboxUnavailable,
+        SharedEvidenceImportError.couldNotFileSharedItem(displayName: "report.pdf"),
 
         InspectionReviewError.noActiveTenancy
     ]

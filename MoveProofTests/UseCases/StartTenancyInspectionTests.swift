@@ -3,6 +3,7 @@ import XCTest
 
 /// Rules covered: address required, one walkthrough at a time, move-in date sanity,
 /// deadline ordering, and the shape of the walkthrough that gets seeded.
+@MainActor
 final class StartTenancyInspectionTests: XCTestCase {
 
     private var tenancyRepository: MockTenancyRepository!

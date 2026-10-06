@@ -8,6 +8,7 @@ import XCTest
 /// there. The refresh now hangs off `refreshPublishedSnapshot`, which the app calls
 /// from the one place it records a successful save. These tests pin that down
 /// without needing the widget extension installed.
+@MainActor
 final class WidgetRefreshAfterChangeTests: XCTestCase {
 
     private var tenancyRepository: MockTenancyRepository!

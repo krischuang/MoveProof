@@ -3,6 +3,7 @@ import XCTest
 
 /// Rules covered for what a tenant does with evidence once it is in MoveProof:
 /// filing it against a checklist item, writing what it shows, and discarding it.
+@MainActor
 final class EvidenceFilingTests: XCTestCase {
 
     private var inspectionRepository: MockInspectionRepository!
@@ -210,6 +211,57 @@ final class EvidenceFilingTests: XCTestCase {
         let outcome = try discardEvidence.execute(evidenceID: filed.id)
 
         XCTAssertNil(outcome.leftDamageUndocumented)
+    }
+
+    /// Discarding something that has already gone is a normal outcome; a record that
+    /// refuses to go is not, because the tenant asked for it and it is still there.
+    func testDiscardingEvidenceReportsAFriendlyFailureWhenItCannotBeRemoved() {
+        evidenceRepository.deleteErrorToThrow = RepositoryError.saveFailed(
+            underlying: CocoaError(.fileWriteUnknown)
+        )
+
+        XCTAssertThrowsError(try discardEvidence.execute(evidenceID: evidence.id)) { error in
+            XCTAssertEqual(error as? EvidenceFilingError, .couldNotDiscardEvidence)
+        }
+        XCTAssertNotNil(
+            try? evidenceRepository.fetchEvidence(id: evidence.id),
+            "The evidence is still in the library, which is what the message says"
+        )
+    }
+
+    func testAFailedDiscardIsExplainedInTheTenantsOwnTerms() {
+        evidenceRepository.deleteErrorToThrow = RepositoryError.saveFailed(
+            underlying: CocoaError(.fileWriteUnknown)
+        )
+
+        XCTAssertThrowsError(try discardEvidence.execute(evidenceID: evidence.id)) { error in
+            let tenantFacing = error as? TenantFacingError
+            XCTAssertNotNil(tenantFacing, "A storage fault must not reach the screen as a RepositoryError")
+            XCTAssertTrue(tenantFacing?.whatHappened.contains("evidence library") == true)
+            XCTAssertFalse(tenantFacing?.whatToDoNext.isEmpty == true)
+        }
+    }
+
+    /// The file is gone, which is what the tenant asked for, so a lookup that fails
+    /// afterwards costs the warning rather than turning a success into a failure.
+    func testADiscardThatSucceedsIsNotReportedAsAFailureWhenTheWarningCannotBeWorkedOut() throws {
+        var damaged = flooring!
+        damaged.conditionState = .damaged
+        damaged.reviewedAt = Date()
+        try inspectionRepository.save(damaged)
+
+        var filed = evidence!
+        filed.conditionItemID = damaged.id
+        try evidenceRepository.save(filed)
+
+        inspectionRepository.errorToThrow = RepositoryError.fetchFailed(
+            underlying: CocoaError(.fileReadUnknown)
+        )
+
+        let outcome = try discardEvidence.execute(evidenceID: filed.id)
+
+        XCTAssertNil(outcome.leftDamageUndocumented)
+        XCTAssertNil(try evidenceRepository.fetchEvidence(id: filed.id), "The discard still happened")
     }
 
     func testDiscardingAPhotoFromAnUndamagedItemReportsNothing() throws {

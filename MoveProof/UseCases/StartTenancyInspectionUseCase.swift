@@ -35,8 +35,11 @@ struct StartTenancyInspectionUseCase {
     }
 
     /// - Returns: the tenancy that was created, with its rooms already seeded.
-    /// - Throws: `TenancySetupError` when a rule is broken, `RepositoryError` on a
-    ///   storage failure.
+    /// - Throws: `TenancySetupError` when a rule is broken. A storage failure comes
+    ///   out as `RepositoryError` on purpose: unlike capturing or importing evidence,
+    ///   nothing here half-succeeds in a way the tenant needs explaining, so there is
+    ///   no domain wording to add that `UnexpectedFailure` does not already give them
+    ///   at the UI boundary. See `RepositoryError` for the rule this follows.
     @discardableResult
     func execute(_ request: Request, now: Date = Date(), calendar: Calendar = .current) throws -> Tenancy {
 

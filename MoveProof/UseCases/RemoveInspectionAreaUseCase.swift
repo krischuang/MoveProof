@@ -13,6 +13,12 @@ import Foundation
 /// and not a plain repository call. The count has to be taken before the delete,
 /// because afterwards the checklist items it counted against are gone. Removing a
 /// room that has already gone is not treated as a failure.
+///
+/// A room that genuinely cannot be removed is a different thing from one that was
+/// already gone, so storage faults come out as
+/// `InspectionAreaEditError.couldNotRemoveRoom` rather than as a `RepositoryError`.
+/// Every step that can fail runs before the delete, so a refusal means the
+/// walkthrough is exactly as the tenant left it.
 struct RemoveInspectionAreaUseCase {
 
     let inspectionRepository: InspectionRepository
@@ -35,24 +41,41 @@ struct RemoveInspectionAreaUseCase {
     }
 
     /// - Returns: what the removal left behind, for the screen to surface.
-    /// - Throws: `RepositoryError` when the store cannot complete the delete.
+    /// - Throws: `InspectionAreaEditError.couldNotRemoveRoom` when the store cannot
+    ///   complete the removal.
     @discardableResult
     func execute(areaID: UUID) throws -> Outcome {
 
-        guard try inspectionRepository.fetchArea(id: areaID) != nil else {
+        guard try roomExists(areaID) else {
             return .roomAlreadyGone
         }
 
-        // Count now, while the checklist items still exist.
-        let items = try inspectionRepository.fetchConditionItems(inArea: areaID)
-        var detachedEvidenceCount = 0
-        for item in items {
-            detachedEvidenceCount += try evidenceRepository.evidenceCount(forConditionItem: item.id)
+        do {
+            // Count now, while the checklist items still exist.
+            let items = try inspectionRepository.fetchConditionItems(inArea: areaID)
+            var detachedEvidenceCount = 0
+            for item in items {
+                detachedEvidenceCount += try evidenceRepository.evidenceCount(forConditionItem: item.id)
+            }
+
+            // The nullify delete rule is what keeps the evidence.
+            try inspectionRepository.deleteArea(id: areaID)
+
+            return Outcome(didRemoveRoom: true, detachedEvidenceCount: detachedEvidenceCount)
+        } catch {
+            AppLog.inspection.error("Could not remove room \(areaID): \(error)")
+            throw InspectionAreaEditError.couldNotRemoveRoom
         }
+    }
 
-        // The nullify delete rule is what keeps the evidence.
-        try inspectionRepository.deleteArea(id: areaID)
-
-        return Outcome(didRemoveRoom: true, detachedEvidenceCount: detachedEvidenceCount)
+    /// A room that is absent is a normal outcome; a lookup that fails is not, because
+    /// then MoveProof does not know whether there was a room to remove.
+    private func roomExists(_ areaID: UUID) throws -> Bool {
+        do {
+            return try inspectionRepository.fetchArea(id: areaID) != nil
+        } catch {
+            AppLog.inspection.error("Could not look up room \(areaID) before removing it: \(error)")
+            throw InspectionAreaEditError.couldNotRemoveRoom
+        }
     }
 }

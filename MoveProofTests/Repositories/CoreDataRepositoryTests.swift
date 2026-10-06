@@ -9,6 +9,7 @@ import XCTest
 /// relationship traversal `inspectionArea.tenancy.id` resolves, or whether a delete
 /// rule does what the model says. Those only show up against the real stack, so
 /// these tests use one, configured in memory, so no tenant data is touched.
+@MainActor
 final class CoreDataRepositoryTests: XCTestCase {
 
     private var store: InspectionStore!

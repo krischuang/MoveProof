@@ -4,6 +4,7 @@ import XCTest
 /// Rules covered: the field checks match the ones `StartTenancyInspectionUseCase`
 /// applies, the backdating typo check is skipped for a tenancy already under way,
 /// and editing the details never changes the tenancy id or detaches its evidence.
+@MainActor
 final class UpdateTenancyDetailsTests: XCTestCase {
 
     private var tenancyRepository: MockTenancyRepository!

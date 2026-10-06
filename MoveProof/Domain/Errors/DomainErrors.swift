@@ -162,6 +162,9 @@ enum SharedEvidenceImportError: TenantFacingError, Equatable {
     case sharedItemUnavailable(displayName: String)
     case duplicateEvidence(displayName: String)
     case inboxUnavailable
+    /// The rules passed but the write did not finish. Storage faults underneath are
+    /// mapped onto this rather than leaking to the screen.
+    case couldNotFileSharedItem(displayName: String)
 
     var title: String {
         switch self {
@@ -183,6 +186,8 @@ enum SharedEvidenceImportError: TenantFacingError, Equatable {
             "\"\(displayName)\" has already been filed against this property."
         case .inboxUnavailable:
             "MoveProof couldn't reach the storage it shares with the share sheet."
+        case .couldNotFileSharedItem(let displayName):
+            "MoveProof couldn't save \"\(displayName)\" into your evidence, so it hasn't been filed."
         }
     }
 
@@ -198,6 +203,8 @@ enum SharedEvidenceImportError: TenantFacingError, Equatable {
             "You can safely remove this copy from the inbox. The original is in your evidence library."
         case .inboxUnavailable:
             "Close and reopen MoveProof. If the inbox stays empty, share the file again."
+        case .couldNotFileSharedItem:
+            "It's still waiting in your shared items. Check there's free space on your device, then import it again."
         }
     }
 
@@ -229,11 +236,16 @@ enum InspectionAreaEditError: TenantFacingError, Equatable {
     case roomNameMissing
     case duplicateRoomName(name: String)
     case roomNotSignedOff(roomName: String)
+    /// No rule was broken, the store simply could not complete the removal.
+    /// `RemoveInspectionAreaUseCase` maps storage faults onto this so a tenant never
+    /// sees a `RepositoryError` where a room removal failed.
+    case couldNotRemoveRoom
 
     var title: String {
         switch self {
         case .noActiveTenancy: "No property to add rooms to"
         case .duplicateRoomName: "You already have a room with that name"
+        case .couldNotRemoveRoom: "Couldn't remove that room"
         default: "Can't change this room"
         }
     }
@@ -250,6 +262,8 @@ enum InspectionAreaEditError: TenantFacingError, Equatable {
             "This walkthrough already has a room called \"\(name)\"."
         case .roomNotSignedOff(let roomName):
             "\"\(roomName)\" hasn't been signed off, so there's nothing to reopen."
+        case .couldNotRemoveRoom:
+            "MoveProof couldn't remove that room, so your walkthrough is unchanged."
         }
     }
 
@@ -265,6 +279,8 @@ enum InspectionAreaEditError: TenantFacingError, Equatable {
             "Give this one a name that tells them apart, such as \"Second bathroom\", so your evidence stays easy to match to the right room."
         case .roomNotSignedOff:
             "You can keep recording in it as it is."
+        case .couldNotRemoveRoom:
+            "Nothing was lost. Try again, and if it keeps happening, close and reopen MoveProof."
         }
     }
 }
@@ -334,8 +350,17 @@ enum EvidenceFilingError: TenantFacingError, Equatable {
     case evidenceNoLongerInLibrary
     case conditionItemNoLongerInWalkthrough
     case conditionItemBelongsToAnotherProperty
+    /// No rule was broken, the store simply could not complete the delete.
+    /// `DiscardEvidenceUseCase` maps storage faults onto this, so a tenant is told
+    /// their evidence is still there rather than shown a `RepositoryError`.
+    case couldNotDiscardEvidence
 
-    var title: String { "Couldn't file this evidence" }
+    var title: String {
+        switch self {
+        case .couldNotDiscardEvidence: "Couldn't discard this evidence"
+        default: "Couldn't file this evidence"
+        }
+    }
 
     var whatHappened: String {
         switch self {
@@ -345,6 +370,8 @@ enum EvidenceFilingError: TenantFacingError, Equatable {
             "The checklist item you picked is no longer part of this walkthrough."
         case .conditionItemBelongsToAnotherProperty:
             "The checklist item you picked belongs to a different property."
+        case .couldNotDiscardEvidence:
+            "MoveProof couldn't remove that photo or document, so it's still in your evidence library."
         }
     }
 
@@ -356,6 +383,8 @@ enum EvidenceFilingError: TenantFacingError, Equatable {
             "Go back and pick a checklist item from the current room list."
         case .conditionItemBelongsToAnotherProperty:
             "Pick a checklist item from the property this evidence was filed against."
+        case .couldNotDiscardEvidence:
+            "Nothing was lost. Try again, and if it keeps happening, close and reopen MoveProof."
         }
     }
 }

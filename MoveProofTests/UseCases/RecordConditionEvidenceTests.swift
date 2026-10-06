@@ -4,6 +4,7 @@ import XCTest
 /// Rules covered: the damage-needs-backing-up rule and its boundaries, condition
 /// must be chosen, cross-property evidence is refused, and recording advances the
 /// room's status.
+@MainActor
 final class RecordConditionEvidenceTests: XCTestCase {
 
     private var inspectionRepository: MockInspectionRepository!

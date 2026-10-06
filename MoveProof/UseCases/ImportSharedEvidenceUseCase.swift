@@ -44,7 +44,8 @@ struct ImportSharedEvidenceUseCase {
     }
 
     /// - Returns: the evidence that was filed.
-    /// - Throws: `SharedEvidenceImportError` when a rule is broken.
+    /// - Throws: `SharedEvidenceImportError`, for a broken rule or for a write that
+    ///   could not be completed.
     @discardableResult
     func execute(_ request: Request, now: Date = Date()) throws -> EvidenceItem {
 
@@ -102,9 +103,11 @@ struct ImportSharedEvidenceUseCase {
         do {
             try evidenceRepository.save(evidence)
         } catch {
-            // Delete the copy so a failed save does not leave it orphaned.
+            // Delete the copy so a failed save does not leave it orphaned. The inbox
+            // item is left alone, so the tenant can simply import it again.
             try? evidenceFileStore.removeFile(named: storedFileName)
-            throw error
+            AppLog.sharedInbox.error("Could not record shared evidence for inbox item \(item.id), rolled the copy back: \(error)")
+            throw SharedEvidenceImportError.couldNotFileSharedItem(displayName: item.originalFileName)
         }
 
         // Only now is it safe to clear the inbox. The evidence is saved, so the

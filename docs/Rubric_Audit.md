@@ -6,13 +6,13 @@ A requirement-by-requirement check against the Assessment 3 criteria.
 verified.** Anything that could not be verified in this environment is marked
 **Manual check required** with the exact steps, rather than claimed.
 
-Last run: 21 September 2026.
+Last run: 6 October 2026, the final submission hardening pass.
 
 | Reference | Result |
 | --- | --- |
 | Build (`xcodebuild build`, all three targets) | `** BUILD SUCCEEDED **` |
-| Unit tests (`-only-testing:MoveProofTests`) | 148 executed, 0 failures |
-| Default test action (`xcodebuild test`) | 148 unit + 5 UI tests, 0 failures |
+| Unit tests (`-only-testing:MoveProofTests`) | 154 executed, 0 failures |
+| Default test action (`xcodebuild test`) | 154 unit + 5 UI tests, 0 failures |
 | Cross-app share sheet test (`ShareExtensionUITests`) | Passed |
 
 ---
@@ -21,12 +21,12 @@ Last run: 21 September 2026.
 
 | Requirement | Implementation | File(s) | Verification | Status | Remaining risk |
 | --- | --- | --- | --- | --- | --- |
-| Real documented problem | Fragmented rental condition evidence; NSW seven-day condition report deadline | `docs/Assessment3_Report_Draft.md` §1, `README.md` | Two real sources fetched and quoted, recorded with URLs and access dates | Complete | None. The author's own bond dispute is now recorded alongside the general statement. |
+| Real documented problem | Fragmented rental condition evidence; NSW seven-day condition report deadline | Report §1, `README.md` "The problem" | Two real sources fetched and quoted, recorded with URLs and access dates | Complete | None. The author's own bond dispute is now recorded alongside the general statement. |
 | Specific stakeholder | A NSW tenant moving into a rental property | §1 "Primary stakeholder" | Design decisions trace back to the stakeholder (pre-seeded checklists, deadline prominence, widget privacy) | Complete | None |
 | Problem shapes the product, not just the pitch | The seven-day rule is a domain constant driving defaults and UI | `Tenancy.conditionReportWindowInDays`, `defaultConditionReportDueDate` | `testTheConditionReportDefaultsToSevenDaysAfterMovingIn` | Complete | None |
 | Extension rationale | Widget = the recurring "am I on track" question; Share Extension = the fragmentation problem itself | §2 | Rationale argued in domain terms, not feature terms | Complete | None |
 | Database rationale | Core Data justified by relational queries; CloudKit and SwiftData explicitly considered and rejected | §2 "Why Core Data" | The named predicate exists and is tested | Complete | None |
-| Accurate architecture diagram | Mermaid source with all layers, both extension processes, App Group, human boundary, primary flow | `docs/architecture.mmd` | Cross-checked against actual type names | Complete | Must be rendered to an image for the PDF; see §3 of the report. |
+| Accurate architecture diagram | Mermaid source with all layers, both extension processes, App Group, human boundary, primary flow, and the dashed read-only path from ViewModel to repository | `docs/architecture.mmd`, rendered to `docs/architecture.png` | Cross-checked against actual type names and against which layers the code really calls. The render in the final PDF was confirmed to be this version, at the same pixel dimensions, placed whole on its page | Complete | None |
 | No legal-advice overreach | Scope limit stated in README and report; no liability claims anywhere in UI copy | `README.md`, §1 "Scope limits" | Reviewed all user-facing strings | Complete | None |
 
 ## B. System Extension Integration (20%)
@@ -72,7 +72,9 @@ Last run: 21 September 2026.
 | Use Case layer | 13 use cases | `UseCases/` | All thirteen are exercised by tests | Complete | None |
 | Minimum 3 Use Case **structs** | All thirteen are `struct` | ibid. | `grep -n "^struct.*UseCase" MoveProof/UseCases/*.swift` returns 13 | Complete | None |
 | Real business rule in each | See the table in README | ibid. | Every rule has at least one passing test and at least one failing-path test | Complete | None |
-| Typed domain-specific errors | 8 error enums, all `Equatable`, including `EvidenceCaptureError` and `EvidenceFilingError` | `Domain/Errors/DomainErrors.swift` | Tests assert on specific cases with associated values, not just "some error" | Complete | None |
+| Typed domain-specific errors | 8 error enums, all `Equatable`. Every use case that can fail raises one; none exposes `RepositoryError` where failing means something specific to the tenant | `Domain/Errors/DomainErrors.swift` | Tests assert on specific cases with associated values, not just "some error" | Complete | None |
+| Storage faults translated, not leaked | `CaptureEvidenceUseCase`, `ImportSharedEvidenceUseCase`, `RemoveInspectionAreaUseCase` and `DiscardEvidenceUseCase` map a failed write onto their own error case, so the message can say which half of the operation happened | `UseCases/`, `Data/Repositories/Repositories.swift` | `testRemovingARoomReportsAFriendlyFailureWhenItCannotBeSaved`, `testDiscardingEvidenceReportsAFriendlyFailureWhenItCannotBeRemoved`, `testAFailedEvidenceSaveDoesNotLeaveTheFileBehind` | Complete | Use cases whose only failure is an ordinary write, such as rename and reopen, still let `RepositoryError` reach the UI boundary, where `TenantMessage` wraps it in `UnexpectedFailure`. Deliberate: there is nothing domain-specific to add, and a bespoke "could not rename" case would say less than the wrapper already does. |
+| Reads and writes documented the same way | Writes go View → ViewModel → Use Case → Repository; read-only screen loading goes View → ViewModel → Repository | `README.md`, `docs/architecture.mmd`, report §3 | The diagram draws the read path as a dashed arrow, and the README and report describe it in the same words | Complete | None |
 | Human-centred messages | `TenantFacingError` requires `whatHappened` + `whatToDoNext` | `Domain/Errors/TenantFacingError.swift` | Tests assert on the tenant-facing text; the workflow UI test asserts the exact strings on screen | Complete | None |
 | No generic error strings | Non-domain failures wrapped in `UnexpectedFailure`; technical detail goes to `AppLog` | `TenantMessage.swift`, `AppLog.swift` | No "Save failed" / "Invalid input" / "Unknown error" in any user-facing string | Complete | None |
 | Rules not duplicated in the UI | Views may prompt, but only use cases refuse | `ConditionItemDetailView.swift` + `RecordConditionEvidenceUseCase.swift` | Reviewed; the view's prompt and the use case's refusal come from the same rule | Complete | None |
@@ -85,9 +87,9 @@ Last run: 21 September 2026.
 | Requirement | Implementation | Verification | Status | Remaining risk |
 | --- | --- | --- | --- | --- |
 | App is functional | 8 screens, full workflow | End-to-end UI test covering the first-run state, setting up a property, the dashboard reflecting it, rooms being seeded, damage refused with its exact wording, and sign-off refused | Complete | The UI test no longer drives the note field or photo picker; those rules are covered in the unit target instead. Reason recorded below. |
-| Minimum 5 unit tests | **148** | `Executed 148 tests, with 0 failures` | Complete | None |
-| Test distribution | 13 share-extension, 12 repository, 11 record-condition, 10 shared-import, 9 widget, 9 start-tenancy, 9 review-progress, 9 complete-area | `grep -rc 'func test' MoveProofTests/` | Complete | None |
-| Mock repositories used | 6 mocks | All use case tests run with zero Core Data and zero disk I/O | Complete | None |
+| Minimum 5 unit tests | **154** | `Executed 154 tests, with 0 failures` | Complete | None |
+| Test distribution | 24 area-editing, 16 evidence-filing, 13 share-extension, 13 capture-evidence, 11 repository, 11 record-condition, 11 update-tenancy, 10 shared-import, 9 widget-snapshot, 9 start-tenancy, 9 review-progress, 9 complete-area, 6 widget-refresh, 3 tenant-facing-error | `grep -rc 'func test' MoveProofTests/` | Complete | None |
+| Mock repositories used | 5 mocks, one per protocol | All use case tests run with zero Core Data and zero disk I/O | Complete | None |
 | Happy path covered | e.g. `testARoomCanBeSignedOffOnceEveryRequiredItemIsReviewed` | Passing | Complete | None |
 | Boundary cases covered | Backdating limit exactly on/over; deadline on move-in day; empty room; optional items; whitespace-only notes; zero rooms | Passing | Complete | None |
 | Error cases covered | Every domain error case has a test | Passing | Complete | None |
@@ -101,19 +103,20 @@ Last run: 21 September 2026.
 | No secrets / derived files committed | `.gitignore` covers DerivedData, `xcuserdata/`, provisioning profiles, certificates | `git ls-files` reviewed | Complete | None |
 | Complete README | Overview, problem, stakeholder, architecture, schema, extensions, setup, build, test, verification, Git workflow, attribution | `README.md` | Complete | None |
 | No unnecessary dependencies | Zero third-party packages | No `Package.resolved`, no Podfile | Complete | None |
+| Compiler warnings | Test target builds clean | `xcodebuild clean test`: no warnings from `MoveProofTests` | Complete | The app target emits **10** warnings, all the same one: the Core Data repositories are `nonisolated` to match their protocols, so calling the `ManagedObjectMapping` statics trips the project's `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` default. Nothing runs off the main queue; this is annotation, not behaviour. Two contained fixes were tried and both made it worse, so it was left alone rather than destabilised before submission. |
 
 ## F. Reflective Report (5%)
 
 | Requirement | Implementation | Verification | Status | Remaining risk |
 | --- | --- | --- | --- | --- |
-| 700 to 900 words | 876 words of prose in the Word report | Counted programmatically from the report, excluding headings and references | Complete | The Markdown draft's Section 4 runs longer, because it keeps working material (*What I would do differently*) that the report does not carry. Recount after any further edit. |
+| 700 to 900 words | **876 words** of prose in Section 4 of the submitted report | Counted programmatically from text extracted out of the final PDF, excluding subheadings, page numbers and references | Complete | Recount if Section 4 is edited again; 876 sits close to the upper bound. |
 | Not a feature list | Organised around decisions and their costs | Reviewed | Complete | None |
 | Design reasoning | Why this problem, why narrowed to the undocumented-damage case | §4 | Complete | None |
 | Database reasoning | Core Data choice, binaries out of the store, delete rules | §4 | Complete | None |
 | Extension reasoning | Why each extension, and where the Share Extension's boundary was drawn | §4 | Complete | None |
-| Architecture trade-off | **Widget usefulness vs privacy**, which matches the implementation exactly and and is pinned by a test | §4, `testTheWidgetSnapshotCarriesCountsButNotThePropertyAddress` | Complete | None |
+| Architecture trade-off | **Widget usefulness vs privacy**, which matches the implementation exactly and is pinned by a test | §4, `testTheWidgetSnapshotCarriesCountsButNotThePropertyAddress` | Complete | None |
 | Accurate AI-use description | Names Claude Code as the main AI-assisted development tool, what it was used for, and how its output was checked, including a suggested delete rule that the Core Data model showed to be wrong | §4 "AI usage" | Confirmed by the author | Complete | None |
-| No fabricated personal reflection | Every experience-dependent passage is either confirmed by the author or still marked | §4 throughout | Complete | One **[AUTHOR TO REVIEW]** marker remains in the Markdown draft, under *What I would do differently*. The Word report does not carry that section. |
+| No fabricated personal reflection | Every experience-dependent passage was confirmed by the author | §4 throughout | Text extracted from the final PDF and searched: no author-review markers, placeholders or draft notes anywhere in the submitted report | Complete | None. The working draft that once carried an unresolved marker has been removed from the repository. |
 
 ---
 
@@ -131,21 +134,49 @@ succeeds once every required item is reviewed* are asserted in
 `RecordConditionEvidenceTests` and `CompleteInspectionAreaTests` against mock
 repositories.
 
-## Outstanding items before submission
+## Final submission status
 
-1. ~~Render `docs/architecture.mmd`~~ Done: `docs/architecture.png`, rendered with
-   `mermaid-cli` using `docs/mermaid-config.json`.
-2. ~~Personalise Section 4~~ Done, except the **[AUTHOR TO REVIEW]** marker under
-   *What I would do differently* in the Markdown draft.
-3. ~~Manually confirm the widget on the Home Screen~~ Done: both families added, expected
-   data shown, refresh reflected, no problems found.
-4. ~~Add the human-cost detail in Section 1~~ Done.
-5. **Export the final PDF** from the reviewed Word draft. Not done yet, and deliberately
-   left to the author.
+Everything below was checked against the repository as it now stands, not as it stood
+during an earlier review.
+
+- **The final PDF is exported from the latest report source.** `MoveProof_Assessment3_Report.pdf`
+  was re-exported after the hardening pass. Its Section 3 carries the two-path
+  architecture explanation, and Figure 1 is the current render of
+  `docs/architecture.mmd` (4875x6663, matching `docs/architecture.png`).
+- **The architecture figure shows the read-only path.** Figure 1 draws the dashed
+  ViewModel to repository arrow labelled "read-only screen loading (no rule, no write)",
+  and the Use Cases node reads "all business rules, all writes". The figure is placed
+  whole on page 11, not clipped.
+- **The report explanation matches the implementation.** Section 3 states that writes go
+  View to ViewModel to Use Case to Repository and that screen loading reads through the
+  repository protocols directly. Nothing in the report claims every ViewModel read
+  passes through a use case.
+- **The PDF carries no draft material.** Extracted and searched: no author-review
+  markers, no TODO, no placeholder, no watermark, no unresolved table-of-contents field
+  codes, no em or en dashes. The four references are complete. The reflection is
+  **876 words**, inside the 700 to 900 range.
+- **The working report draft has been removed from the submission repository.** It was
+  scratch material that duplicated the report and carried an unresolved author-review
+  marker. The submitted report is the PDF; the implementation documentation is this
+  file and the README.
+- **The README links all resolve.** Every relative link in the README and in `docs/` was
+  followed and points at a file that exists. The AI declaration now cites Section 4.5 of
+  the submitted report rather than linking the deleted draft.
+- **Typed domain error hardening is documented consistently.** The README Use Case table,
+  this audit and the `RepositoryError` doc comment all describe the same policy; no row
+  says "Typed error: None".
+- **Test counts reflect the latest run.** 154 unit and 5 UI tests, 0 failures, from a
+  `xcodebuild clean test` on `iPhone 17`.
+- **Widget and Share Extension status is recorded as it actually is.** The automated
+  coverage is listed in section B above; the Home Screen placement remains a manual
+  check from an earlier session, and is still labelled as one rather than claimed as
+  automated.
+- **Known limitation, carried forward honestly:** the app target still emits 10
+  concurrency warnings. See the Code Quality section for why they were left alone.
 
 ## Status note: test counts and the cross-app test
 
-The **148** figure quoted above is the `MoveProofTests` target alone. The two UI test
+The **154** figure quoted above is the `MoveProofTests` target alone. The two UI test
 classes (`MoveProofWalkthroughUITests` and `ShareExtensionUITests`) are counted and
 reported separately because they are slower and depend on simulator state.
 
@@ -157,7 +188,7 @@ evidence for the "appears in the real share sheet" row above.
 That test depends on simulator state it cannot control: photos must exist in the
 library, and Photos' grid does not respond to element-relative taps. So it is **skipped
 by default in the shared scheme** and run explicitly with `-only-testing:`. That is a
-a configuration choice made on purpose and recorded here, not hidden: `xcodebuild test`
+configuration choice made on purpose and recorded here, not hidden: `xcodebuild test`
 should be trustworthy, and a test that depends on the state of another app is not a
 sound thing to gate it on.
 
