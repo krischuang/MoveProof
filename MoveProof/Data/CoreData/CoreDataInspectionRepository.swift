@@ -16,14 +16,14 @@ struct CoreDataInspectionRepository: InspectionRepository {
         request.predicate = NSPredicate(format: "tenancy.id == %@", tenancyID as CVarArg)
         request.sortDescriptors = [NSSortDescriptor(key: "displayOrder", ascending: true)]
         do {
-            return try context.fetch(request).compactMap(ManagedObjectMapping.inspectionArea(from:))
+            return try context.fetch(request).compactMap { ManagedObjectMapping.inspectionArea(from: $0) }
         } catch {
             throw RepositoryError.fetchFailed(underlying: error)
         }
     }
 
     func fetchArea(id: UUID) throws -> InspectionArea? {
-        try managedArea(id: id).flatMap(ManagedObjectMapping.inspectionArea(from:))
+        try managedArea(id: id).flatMap { ManagedObjectMapping.inspectionArea(from: $0) }
     }
 
     // MARK: - Condition items
@@ -36,14 +36,14 @@ struct CoreDataInspectionRepository: InspectionRepository {
             NSSortDescriptor(key: "title", ascending: true)
         ]
         do {
-            return try context.fetch(request).compactMap(ManagedObjectMapping.conditionItem(from:))
+            return try context.fetch(request).compactMap { ManagedObjectMapping.conditionItem(from: $0) }
         } catch {
             throw RepositoryError.fetchFailed(underlying: error)
         }
     }
 
     func fetchConditionItem(id: UUID) throws -> ConditionItem? {
-        try managedConditionItem(id: id).flatMap(ManagedObjectMapping.conditionItem(from:))
+        try managedConditionItem(id: id).flatMap { ManagedObjectMapping.conditionItem(from: $0) }
     }
 
     /// The query the app is built around: damage recorded with nothing to back it up.
@@ -68,7 +68,7 @@ struct CoreDataInspectionRepository: InspectionRepository {
         ]
 
         do {
-            return try context.fetch(request).compactMap(ManagedObjectMapping.conditionItem(from:))
+            return try context.fetch(request).compactMap { ManagedObjectMapping.conditionItem(from: $0) }
         } catch {
             throw RepositoryError.fetchFailed(underlying: error)
         }

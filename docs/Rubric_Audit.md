@@ -103,7 +103,7 @@ Last run: 6 October 2026, the final submission hardening pass.
 | No secrets / derived files committed | `.gitignore` covers DerivedData, `xcuserdata/`, provisioning profiles, certificates | `git ls-files` reviewed | Complete | None |
 | Complete README | Overview, problem, stakeholder, architecture, schema, extensions, setup, build, test, verification, Git workflow, attribution | `README.md` | Complete | None |
 | No unnecessary dependencies | Zero third-party packages | No `Package.resolved`, no Podfile | Complete | None |
-| Compiler warnings | Test target builds clean | `xcodebuild clean test`: no warnings from `MoveProofTests` | Complete | The app target emits **10** warnings, all the same one: the Core Data repositories are `nonisolated` to match their protocols, so calling the `ManagedObjectMapping` statics trips the project's `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` default. Nothing runs off the main queue; this is annotation, not behaviour. Two contained fixes were tried and both made it worse, so it was left alone rather than destabilised before submission. |
+| Compiler warnings | App and test targets both build clean | `xcodebuild clean build` and `xcodebuild clean test`: **0 warnings** | Complete | None. The app target previously emitted 10 actor-isolation warnings. They came from passing `ManagedObjectMapping` methods to `compactMap`/`flatMap` as unapplied references: a `@MainActor` method cannot be converted to the nonisolated function type those parameters declare. Each call site now uses a closure literal, which inherits the caller's isolation. Behaviour is unchanged, since the mapping already ran on the main queue. |
 
 ## F. Reflective Report (5%)
 
@@ -171,8 +171,9 @@ during an earlier review.
   coverage is listed in section B above; the Home Screen placement remains a manual
   check from an earlier session, and is still labelled as one rather than claimed as
   automated.
-- **Known limitation, carried forward honestly:** the app target still emits 10
-  concurrency warnings. See the Code Quality section for why they were left alone.
+- **The final clean build completes with zero compiler warnings**, in the app target
+  and the test target. See the Code Quality section for what the earlier
+  actor-isolation warnings were and how they were resolved.
 
 ## Status note: test counts and the cross-app test
 
