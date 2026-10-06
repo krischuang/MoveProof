@@ -24,14 +24,14 @@ struct CoreDataTenancyRepository: TenancyRepository {
         request.fetchLimit = 1
 
         do {
-            return try context.fetch(request).compactMap(ManagedObjectMapping.tenancy(from:)).first
+            return try context.fetch(request).compactMap { ManagedObjectMapping.tenancy(from: $0) }.first
         } catch {
             throw RepositoryError.fetchFailed(underlying: error)
         }
     }
 
     func fetchTenancy(id: UUID) throws -> Tenancy? {
-        try managedTenancy(id: id).flatMap(ManagedObjectMapping.tenancy(from:))
+        try managedTenancy(id: id).flatMap { ManagedObjectMapping.tenancy(from: $0) }
     }
 
     func save(_ tenancy: Tenancy) throws {

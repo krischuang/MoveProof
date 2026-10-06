@@ -36,7 +36,7 @@ struct CoreDataEvidenceRepository: EvidenceRepository {
     }
 
     func fetchEvidence(id: UUID) throws -> EvidenceItem? {
-        try managedEvidence(id: id).flatMap(ManagedObjectMapping.evidence(from:))
+        try managedEvidence(id: id).flatMap { ManagedObjectMapping.evidence(from: $0) }
     }
 
     /// Makes shared-evidence import idempotent by asking the store whether this
@@ -46,7 +46,7 @@ struct CoreDataEvidenceRepository: EvidenceRepository {
         request.predicate = NSPredicate(format: "importedInboxItemID == %@", inboxItemID as CVarArg)
         request.fetchLimit = 1
         do {
-            return try context.fetch(request).compactMap(ManagedObjectMapping.evidence(from:)).first
+            return try context.fetch(request).compactMap { ManagedObjectMapping.evidence(from: $0) }.first
         } catch {
             throw RepositoryError.fetchFailed(underlying: error)
         }
@@ -106,7 +106,7 @@ struct CoreDataEvidenceRepository: EvidenceRepository {
         request.predicate = predicate
         request.sortDescriptors = [NSSortDescriptor(key: "capturedAt", ascending: false)]
         do {
-            return try context.fetch(request).compactMap(ManagedObjectMapping.evidence(from:))
+            return try context.fetch(request).compactMap { ManagedObjectMapping.evidence(from: $0) }
         } catch {
             throw RepositoryError.fetchFailed(underlying: error)
         }
