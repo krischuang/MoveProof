@@ -36,10 +36,10 @@ playground.xcworkspace
 *.cer
 *.certSigningRequest
 
-# Rendered submission artefacts. The diagram sources are tracked
-# (docs/architecture.mmd and docs/mermaid-config.json, rendered to
-# docs/architecture.png), and the report itself is submitted as a PDF exported from
-# MoveProof_Assessment3_Report.docx rather than built by this repository.
+# Rendered submission artefacts. Two are tracked on purpose: the final report at
+# docs/MoveProof_Assessment3_Report.pdf, and docs/architecture.png, the diagram
+# embedded in it. The Word source the PDF is exported from is kept outside this
+# repository rather than built by it, so a stray PDF at the root stays ignored.
 # Track a rendered artefact anyway with: git add -f <file>
 /MoveProof_Assessment3_Report_Draft.docx
 /*.pdf

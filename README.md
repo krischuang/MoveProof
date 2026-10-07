@@ -15,6 +15,7 @@ organised against the property they belong to.
 
 ## Contents
 
+- [Assessment report](#assessment-report)
 - [The problem](#the-problem)
 - [Primary stakeholder](#primary-stakeholder)
 - [Key workflow](#key-workflow)
@@ -34,6 +35,15 @@ organised against the property they belong to.
 - [What is verified, and how](#what-is-verified-and-how)
 - [Git workflow](#git-workflow)
 - [Attribution](#attribution)
+
+---
+
+## Assessment report
+
+The final Assessment 3 report is at
+[`docs/MoveProof_Assessment3_Report.pdf`](docs/MoveProof_Assessment3_Report.pdf). It
+covers the problem statement, the design justification, the architecture diagram, the
+reflective report and the references.
 
 ---
 
@@ -129,9 +139,8 @@ grep -rn "import CoreData\|NSManagedObjectContext\|NSFetchRequest" MoveProof/Fea
 Business rules live in the Use Case structs and nowhere else, and **no view model
 writes to a repository directly.** View models read through the repository protocols
 to build what the screen shows, and every write goes through a use case. That is the
-boundary the greps below check, and it is the one the assessment asks for: a view
-model may ask the store a question, but it may never decide anything or change
-anything. That is also checkable:
+boundary the greps below check: a view model may ask the store a question, but it may
+never decide anything or change anything. That is also checkable:
 
 ```bash
 grep -rn "Repository.save(\|Repository.delete(\|Repository.createAreas(" MoveProof/Features/
@@ -148,8 +157,9 @@ Where two use cases share a rule, the rule is pulled out instead of copied.
 `TenancyDetailsRules`, so the address and due date rules have one implementation and
 the two screens cannot end up disagreeing.
 
-The full diagram, including the human boundary and the shared-evidence data flow, is
-in [`docs/architecture.mmd`](docs/architecture.mmd) (Mermaid).
+The final architecture diagram is embedded in Section 3 of the submitted Assessment 3
+report. The same image is kept here as [`docs/architecture.png`](docs/architecture.png),
+showing the human boundary, both extension processes and the shared-evidence data flow.
 
 Object graph assembly happens in one explicit place, `AppEnvironment`, with no
 dependency injection container. `AppEnvironment.live()` wires the Core Data
@@ -182,7 +192,7 @@ the Share Extension be adopted without copying it out of the sandbox and back in
 
 ## Core Data model
 
-Four entities, three relationships:
+Four entities, four relationships:
 
 ```
 TenancyEntity
@@ -458,7 +468,10 @@ MoveProofTests/
 └── Widget/                    App Group contract + both-family rendering
 
 MoveProofUITests/              end-to-end workflow and share-sheet tests
-docs/                          architecture diagram (source + render), references, rubric audit
+docs/
+├── MoveProof_Assessment3_Report.pdf   the submitted Assessment 3 report
+├── architecture.png                   the diagram embedded in Section 3 of the report
+└── references.md                      the sources the project relies on
 ```
 
 > **Note on `InspectionWidgetViews.swift`:** the widget's view layer sits in
