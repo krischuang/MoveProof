@@ -12,11 +12,8 @@ import Foundation
 /// evidence belongs to them and they may have a good reason.
 /// `CompleteInspectionAreaUseCase` re-checks the room at sign-off anyway.
 ///
-/// The one thing that is a failure is the row refusing to go, since the tenant asked
-/// for it and it is still there. That comes out as
-/// `EvidenceFilingError.couldNotDiscardEvidence` rather than as a `RepositoryError`,
-/// so the message says the evidence is still in the library instead of saying nothing
-/// useful at all.
+/// A record that will not delete is the one real failure here, since the tenant asked
+/// for it and it is still in the library.
 struct DiscardEvidenceUseCase {
 
     let inspectionRepository: InspectionRepository

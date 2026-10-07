@@ -14,11 +14,8 @@ import Foundation
 /// because afterwards the checklist items it counted against are gone. Removing a
 /// room that has already gone is not treated as a failure.
 ///
-/// A room that genuinely cannot be removed is a different thing from one that was
-/// already gone, so storage faults come out as
-/// `InspectionAreaEditError.couldNotRemoveRoom` rather than as a `RepositoryError`.
-/// Every step that can fail runs before the delete, so a refusal means the
-/// walkthrough is exactly as the tenant left it.
+/// A room that will not delete is a different outcome from one that was already gone.
+/// Everything that can fail runs before the delete, so a refusal means nothing changed.
 struct RemoveInspectionAreaUseCase {
 
     let inspectionRepository: InspectionRepository

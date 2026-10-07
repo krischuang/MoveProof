@@ -45,8 +45,9 @@ product decisions, most importantly the seven-day default deadline.
 
 ### 2. Starting a tenancy (Tenants' Union of NSW)
 
-- **Title:** Factsheet 02: Starting a tenancy
+- **Title:** Starting a tenancy
 - **Organisation:** Tenants' Union of NSW
+- **Updated:** August 2025
 - **URL:** https://www.tenants.org.au/factsheet-02-starting-a-tenancy
 - **Accessed:** 21 September 2026
 

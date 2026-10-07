@@ -162,8 +162,7 @@ enum SharedEvidenceImportError: TenantFacingError, Equatable {
     case sharedItemUnavailable(displayName: String)
     case duplicateEvidence(displayName: String)
     case inboxUnavailable
-    /// The rules passed but the write did not finish. Storage faults underneath are
-    /// mapped onto this rather than leaking to the screen.
+    /// The shared item could not be filed, so it stays in the inbox to try again.
     case couldNotFileSharedItem(displayName: String)
 
     var title: String {
@@ -236,9 +235,7 @@ enum InspectionAreaEditError: TenantFacingError, Equatable {
     case roomNameMissing
     case duplicateRoomName(name: String)
     case roomNotSignedOff(roomName: String)
-    /// No rule was broken, the store simply could not complete the removal.
-    /// `RemoveInspectionAreaUseCase` maps storage faults onto this so a tenant never
-    /// sees a `RepositoryError` where a room removal failed.
+    /// The removal itself did not complete, so the walkthrough is unchanged.
     case couldNotRemoveRoom
 
     var title: String {
@@ -350,9 +347,7 @@ enum EvidenceFilingError: TenantFacingError, Equatable {
     case evidenceNoLongerInLibrary
     case conditionItemNoLongerInWalkthrough
     case conditionItemBelongsToAnotherProperty
-    /// No rule was broken, the store simply could not complete the delete.
-    /// `DiscardEvidenceUseCase` maps storage faults onto this, so a tenant is told
-    /// their evidence is still there rather than shown a `RepositoryError`.
+    /// The record would not delete, so the evidence is still in the library.
     case couldNotDiscardEvidence
 
     var title: String {

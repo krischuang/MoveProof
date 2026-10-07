@@ -6,19 +6,10 @@
 	<dict>
 		<key>NSExtensionAttributes</key>
 		<dict>
-			<!-- MoveProof appears in the share sheet for images and for files, which
-			     is how a PDF reaches it. It deliberately does not claim text, URLs or
-			     video, so it stays out of the share sheet for the content it could
-			     never file.
-			     The file key is broader than the two types MoveProof actually keeps,
-			     so a sharing app offering some other document type can still reach
-			     the extension. That is handled rather than prevented:
-			     SharedItemCollector only carries attachments conforming to image or
-			     PDF, shows "Nothing MoveProof can store" if none do, and
-			     ImportSharedEvidenceUseCase re-checks the type in the main app before
-			     anything is filed. A UTI predicate here would narrow the sheet
-			     slightly and move the decision into a plist, away from the code that
-			     is tested. -->
+			<!-- Images and files, which is how a PDF arrives. The file key is broader
+			     than the two types MoveProof keeps, so SharedItemCollector filters to
+			     image and PDF and ImportSharedEvidenceUseCase checks the type again
+			     before anything is filed. -->
 			<key>NSExtensionActivationRule</key>
 			<dict>
 				<key>NSExtensionActivationSupportsImageWithMaxCount</key>

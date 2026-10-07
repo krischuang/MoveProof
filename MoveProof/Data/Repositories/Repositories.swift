@@ -1,19 +1,12 @@
 import Foundation
 
 /// Thrown when storage itself fails. Infrastructure, not domain: nothing in here is a
-/// rule a tenant broke, so a `RepositoryError` is never shown as written.
+/// rule a tenant broke, so it is never shown as written.
 ///
-/// Where failing means something specific to the tenant, the use case translates it
-/// into its own typed error, so the message can say what state their evidence is
-/// actually in. `CaptureEvidenceUseCase`, `ImportSharedEvidenceUseCase`,
-/// `RemoveInspectionAreaUseCase` and `DiscardEvidenceUseCase` all do that, because
-/// each one can fail part way through a write and the tenant needs to know which
-/// half happened.
-///
-/// Everywhere else the fault is the app's and there is nothing specific to add, so it
-/// travels to the UI boundary and `TenantMessage` wraps it in `UnexpectedFailure`:
-/// still plain language, still a next step, with the technical detail going to
-/// `AppLog` instead of the screen.
+/// A use case translates this into its own error where failing part way through a
+/// write leaves the tenant needing to know which half happened. Otherwise it travels
+/// to `TenantMessage`, which wraps it in `UnexpectedFailure`, and the technical detail
+/// goes to `AppLog`.
 enum RepositoryError: Error {
     case tenancyNotFound(UUID)
     case inspectionAreaNotFound(UUID)
